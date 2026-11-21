@@ -1,0 +1,941 @@
+<!doctype html>
+<html lang="en" class="h-full bg-slate-950 text-slate-100">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Yesbee Wholesale Catalog Exporter</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    @keyframes pulse-subtle {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.4; }
+    }
+    .animate-pulse-subtle {
+      animation: pulse-subtle 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+    /* Custom scrollbar for tables and terminal */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0f172a;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #334155;
+      border-radius: 3px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #475569;
+    }
+  </style>
+</head>
+<body class="min-h-full flex flex-col antialiased selection:bg-cyan-500 selection:text-slate-950 font-sans">
+
+  <!-- Toast Container -->
+  <div id="toast-container" class="fixed top-5 right-5 z-50 flex flex-col gap-2 max-w-sm w-full pointer-events-none"></div>
+
+  <!-- Header -->
+  <header class="border-b border-slate-800/80 bg-slate-900/60 backdrop-blur sticky top-0 z-30">
+    <div class="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="h-10 w-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-indigo-500 flex items-center justify-center shadow-lg shadow-cyan-500/20 text-slate-950 font-black text-xl">
+          Y
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-lg font-bold text-slate-100 tracking-tight">Yesbee Wholesale Exporter</h1>
+            <span class="rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 text-xs font-semibold">v2.0</span>
+          </div>
+          <p class="text-xs text-slate-400">Local Catalog Scraper, Detail Enricher & Excel CSV Generator</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-2.5">
+        <button id="view-runs-btn" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition">
+          <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          Run History
+        </button>
+        <div class="flex items-center gap-1.5 rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-400">
+          <span class="relative flex h-2 w-2">
+            <span id="live-ping" class="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+            <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+          </span>
+          <span id="connection-status">Connected</span>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- KPI Metric Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span>Cached Products</span>
+          <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="stat-cached" class="text-2xl font-bold text-white tracking-tight">0</span>
+          <span class="text-xs text-slate-500">items</span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span>Enriched Details</span>
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="stat-enriched" class="text-2xl font-bold text-emerald-400 tracking-tight">0</span>
+          <span id="stat-enriched-pct" class="text-xs text-slate-500">0%</span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span>Total Brands</span>
+          <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+        </div>
+        <div class="flex items-baseline gap-2">
+          <span id="stat-brands" class="text-2xl font-bold text-white tracking-tight">0</span>
+          <span class="text-xs text-slate-500">brands</span>
+        </div>
+      </div>
+
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+        <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+          <span>Scraper Status</span>
+          <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+        </div>
+        <div class="flex items-center gap-2">
+          <span id="stat-badge" class="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-300 capitalize">
+            <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+            Idle
+          </span>
+          <span id="stat-elapsed" class="text-xs text-slate-500">0s</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top Grid: Credentials & Scraper Controls -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Credentials Card (4 cols) -->
+      <section class="lg:col-span-5 rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-lg bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-semibold text-slate-100">Yesbee Credentials</h2>
+                <p class="text-xs text-slate-400">Stored safely on local disk (.env)</p>
+              </div>
+            </div>
+            <span id="cred-status-pill" class="rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 text-xs font-medium">Not configured</span>
+          </div>
+
+          <div class="space-y-3.5">
+            <div>
+              <label for="username" class="block text-xs font-medium text-slate-300 mb-1">Username / ID</label>
+              <div class="relative">
+                <input id="username" type="text" autocomplete="username" placeholder="e.g. buyer@wholesale.com" class="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+              </div>
+            </div>
+
+            <div>
+              <label for="password" class="block text-xs font-medium text-slate-300 mb-1">Password</label>
+              <div class="relative">
+                <input id="password" type="password" autocomplete="current-password" placeholder="Enter password" class="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 pl-3.5 pr-10 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+                <button type="button" id="toggle-password" class="absolute inset-y-0 right-0 flex items-center pr-3 text-slate-400 hover:text-slate-200" title="Toggle password visibility">
+                  <svg id="eye-icon" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
+                </button>
+              </div>
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label for="proxy" class="block text-xs font-medium text-slate-300">Proxy Server (Optional)</label>
+                <span class="text-[10px] text-slate-400">HTTP/SOCKS5 / Rotating IP</span>
+              </div>
+              <div class="relative">
+                <input id="proxy" type="text" placeholder="http://username:password@ip:port (optional)" class="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 px-3.5 py-2 text-sm text-slate-100 placeholder-slate-500 outline-none transition focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="pt-4 mt-4 border-t border-slate-800 flex items-center justify-between gap-3">
+          <p id="cred-msg" class="text-xs text-slate-400 truncate"></p>
+          <button id="save-cred-btn" class="inline-flex items-center gap-1.5 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2 text-xs transition shadow-md shadow-cyan-500/10 disabled:opacity-50 disabled:cursor-not-allowed">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+            Save Credentials
+          </button>
+        </div>
+      </section>
+
+      <!-- Scraper Control Center (7 cols) -->
+      <section class="lg:col-span-7 rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl flex flex-col justify-between">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <div class="flex items-center gap-2">
+              <div class="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+              </div>
+              <div>
+                <h2 class="text-sm font-semibold text-slate-100">Workflow Control Center</h2>
+                <p class="text-xs text-slate-400">Automate discovery, detail scraping & CSV export</p>
+              </div>
+            </div>
+
+            <!-- Headed Checkbox Toggle -->
+            <label class="inline-flex items-center gap-2 cursor-pointer select-none rounded-lg border border-slate-800 bg-slate-950/60 px-3 py-1.5 text-xs text-slate-300 hover:border-slate-700 transition" title="Show Chromium browser window so you can view verification challenges or login">
+              <input id="headed" type="checkbox" class="h-3.5 w-3.5 rounded border-slate-700 text-cyan-500 focus:ring-cyan-500 focus:ring-offset-slate-900 bg-slate-800">
+              <span class="font-medium text-cyan-300">Show browser window</span>
+            </label>
+          </div>
+
+          <!-- Helpful Verification Hint Banner -->
+          <div class="mb-4 flex items-center gap-2 rounded-xl border border-cyan-500/20 bg-cyan-500/5 px-3 py-2 text-xs text-cyan-300">
+            <svg class="w-4 h-4 text-cyan-400 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            <span>First time logging in or seeing a verification error? Check <strong>Show browser window</strong> to complete the Cloudflare or login challenge. Session is saved locally for future runs.</span>
+          </div>
+
+          <!-- Buttons Toolbar -->
+          <div class="flex flex-wrap items-center gap-2.5 mb-5">
+            <button id="btn-fresh" class="inline-flex items-center gap-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-semibold px-4 py-2.5 text-sm transition shadow-md shadow-cyan-500/20 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              Start Full Scrape
+            </button>
+
+            <button id="btn-resume" class="inline-flex items-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 text-sm transition shadow-md shadow-indigo-600/20 disabled:opacity-50 disabled:cursor-not-allowed">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              Resume Scrape
+            </button>
+
+            <button id="btn-enrich" class="inline-flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold px-4 py-2.5 text-sm transition shadow-md shadow-purple-600/20 disabled:opacity-50 disabled:cursor-not-allowed" title="Fetch Lead Time, Inbox, and Outbox for currently cached products">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
+              Enrich Details
+            </button>
+
+            <button id="btn-stop" class="inline-flex items-center gap-2 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white font-semibold px-4 py-2.5 text-sm transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+              Stop
+            </button>
+
+            <a id="btn-export" href="/api/export" class="inline-flex items-center gap-2 rounded-xl bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-4 py-2.5 text-sm transition shadow-md shadow-emerald-600/20 opacity-50 pointer-events-none">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              Export CSV
+            </a>
+
+            <button id="btn-clear" class="ml-auto inline-flex items-center gap-1.5 rounded-xl border border-slate-700/80 bg-slate-800/60 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/30 text-slate-400 font-medium px-3 py-2 text-xs transition" title="Clear all scraped products from database">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              Clear
+            </button>
+          </div>
+
+          <!-- Progress Bar & Active Status -->
+          <div class="space-y-2">
+            <div class="flex items-center justify-between text-xs font-medium">
+              <div class="flex items-center gap-2">
+                <span id="progress-phase" class="text-cyan-400 capitalize">Idle</span>
+                <span id="active-item-title" class="text-slate-400 max-w-xs truncate hidden"></span>
+              </div>
+              <span id="progress-count" class="text-slate-300 font-mono">0 / 0 items (0%)</span>
+            </div>
+
+            <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
+              <div id="progress-bar" class="h-full w-0 bg-gradient-to-r from-cyan-500 to-indigo-500 rounded-full transition-all duration-300"></div>
+            </div>
+
+            <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+              <span>Current Brand: <strong id="progress-brand" class="text-slate-200 font-medium">-</strong></span>
+              <span>Time: <strong id="progress-elapsed" class="text-slate-200 font-medium">0s</strong></span>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Live Products Catalog Explorer -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+      <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M3 14h18m-9-4v8m-7 0h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+          </div>
+          <div>
+            <h2 class="text-sm font-semibold text-slate-100">Live Scraped Catalog Database</h2>
+            <p class="text-xs text-slate-400">Search, filter, and inspect cached product rows</p>
+          </div>
+        </div>
+
+        <!-- Search & Filter Controls -->
+        <div class="flex flex-wrap items-center gap-2.5">
+          <div class="relative w-64">
+            <input id="search-input" type="text" placeholder="Search product, barcode, ID..." class="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 pl-8 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-500 outline-none transition focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400">
+            <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+          </div>
+
+          <select id="brand-filter" class="rounded-xl border border-slate-700/80 bg-slate-800/80 px-3 py-1.5 text-xs text-slate-200 outline-none transition focus:border-cyan-400">
+            <option value="">All Brands</option>
+          </select>
+
+          <button id="refresh-table-btn" class="inline-flex items-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 transition" title="Refresh Table">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          </button>
+        </div>
+      </div>
+
+      <!-- Table Wrapper -->
+      <div class="overflow-x-auto rounded-xl border border-slate-800 bg-slate-950/60 min-h-[300px]">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="border-b border-slate-800 bg-slate-900/90 text-slate-400 font-semibold uppercase tracking-wider sticky top-0 text-[11px]">
+            <tr>
+              <th scope="col" class="px-3 py-2.5">Item</th>
+              <th scope="col" class="px-3 py-2.5">Brand</th>
+              <th scope="col" class="px-3 py-2.5">Description</th>
+              <th scope="col" class="px-3 py-2.5">Supply Price</th>
+              <th scope="col" class="px-3 py-2.5">Barcode</th>
+              <th scope="col" class="px-3 py-2.5">Lead Time</th>
+              <th scope="col" class="px-3 py-2.5">MOQ</th>
+              <th scope="col" class="px-3 py-2.5">Inbox</th>
+              <th scope="col" class="px-3 py-2.5">Outbox</th>
+              <th scope="col" class="px-3 py-2.5">Subtotal</th>
+              <th scope="col" class="px-3 py-2.5 text-center">Status</th>
+            </tr>
+          </thead>
+          <tbody id="products-tbody" class="divide-y divide-slate-800/60 font-normal">
+            <!-- Populated via JavaScript -->
+            <tr>
+              <td colspan="11" class="px-4 py-12 text-center text-slate-500">
+                <svg class="mx-auto h-8 w-8 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
+                No cached products found yet. Start a scrape run to populate the catalog.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Pagination Footer -->
+      <div class="flex flex-wrap items-center justify-between gap-3 pt-3 mt-1 text-xs text-slate-400">
+        <div class="flex items-center gap-2">
+          <span id="page-info">Showing 0 to 0 of 0 entries</span>
+          <select id="page-size-select" class="rounded-lg border border-slate-800 bg-slate-900 px-2 py-1 text-xs text-slate-300">
+            <option value="10">10 per page</option>
+            <option value="25" selected>25 per page</option>
+            <option value="50">50 per page</option>
+            <option value="100">100 per page</option>
+          </select>
+        </div>
+
+        <div class="flex items-center gap-1.5">
+          <button id="prev-page-btn" class="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed">Previous</button>
+          <span id="current-page-badge" class="px-2 py-1 font-semibold text-slate-200">1</span>
+          <button id="next-page-btn" class="rounded-lg border border-slate-800 bg-slate-900 px-2.5 py-1 text-slate-300 hover:bg-slate-800 disabled:opacity-40 disabled:cursor-not-allowed">Next</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- Terminal Activity Logs -->
+    <section class="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl">
+      <div class="flex items-center justify-between mb-3">
+        <div class="flex items-center gap-2">
+          <div class="h-7 w-7 rounded-lg bg-slate-800 text-cyan-400 flex items-center justify-center">
+            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+          </div>
+          <h2 class="text-sm font-semibold text-slate-200">Activity & Scraper Engine Logs</h2>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <label class="inline-flex items-center gap-1.5 text-xs text-slate-400 cursor-pointer">
+            <input id="autoscroll-chk" type="checkbox" checked class="h-3 w-3 rounded border-slate-700 text-cyan-500 bg-slate-800">
+            <span>Auto-scroll</span>
+          </label>
+          <button id="clear-logs-btn" class="rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 transition">Clear</button>
+        </div>
+      </div>
+
+      <div id="logs-terminal" class="h-56 overflow-y-auto rounded-xl border border-slate-950 bg-black/80 p-3.5 font-mono text-xs leading-relaxed space-y-1">
+        <div class="text-slate-500">// Ready. Logs and engine activity will appear here in real time.</div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Run History Modal -->
+  <div id="runs-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-2xl rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl">
+      <div class="flex items-center justify-between pb-4 border-b border-slate-800 mb-4">
+        <h3 class="text-base font-semibold text-white">Scrape Run History</h3>
+        <button id="close-runs-btn" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <div class="overflow-x-auto max-h-96">
+        <table class="w-full text-left text-xs text-slate-300">
+          <thead class="border-b border-slate-800 text-slate-400">
+            <tr>
+              <th class="py-2">Started</th>
+              <th class="py-2">Mode</th>
+              <th class="py-2">State</th>
+              <th class="py-2">Scraped</th>
+              <th class="py-2">Error</th>
+            </tr>
+          </thead>
+          <tbody id="runs-tbody" class="divide-y divide-slate-800/50">
+            <!-- Populated via JS -->
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- Clear Confirmation Modal -->
+  <div id="confirm-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-2xl border border-rose-500/30 bg-slate-900 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 text-rose-400">
+        <div class="h-10 w-10 rounded-full bg-rose-500/10 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-white">Clear Cached Products?</h3>
+      </div>
+      <p class="text-xs text-slate-300">This will remove all products from the local SQLite catalog database. Export a CSV first if you want to keep a backup.</p>
+      <div class="flex justify-end gap-2.5 pt-2">
+        <button id="cancel-clear-btn" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700">Cancel</button>
+        <button id="confirm-clear-btn" class="rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2 text-xs">Yes, Clear Database</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Image Lightbox Modal -->
+  <div id="img-modal" class="fixed inset-0 z-50 bg-black/90 backdrop-blur-sm hidden flex items-center justify-center p-4 cursor-pointer" onclick="this.classList.add('hidden')">
+    <div class="max-w-2xl max-h-[85vh] p-2 bg-slate-900 rounded-2xl border border-slate-700 shadow-2xl relative" onclick="event.stopPropagation()">
+      <button class="absolute -top-3 -right-3 h-8 w-8 rounded-full bg-slate-800 border border-slate-600 text-white flex items-center justify-center" onclick="document.getElementById('img-modal').classList.add('hidden')">&times;</button>
+      <img id="modal-img" src="" alt="Product Preview" class="max-h-[80vh] w-auto mx-auto rounded-xl object-contain">
+      <p id="modal-img-caption" class="text-xs text-center text-slate-300 mt-2 truncate max-w-md mx-auto"></p>
+    </div>
+  </div>
+
+  <!-- Application Script -->
+  <script>
+    const $ = id => document.getElementById(id);
+
+    // State
+    let passwordSet = false;
+    let currentPage = 1;
+    let pageSize = 25;
+    let searchQuery = '';
+    let selectedBrand = '';
+    let isScraping = false;
+    let searchDebounce = null;
+    let lastCachedCount = -1;
+    let lastEnrichedCount = -1;
+    let isRefreshingTable = false;
+
+    // Toast Notifications
+    function showToast(message, type = 'info') {
+      const container = $('toast-container');
+      const toast = document.createElement('div');
+      const colors = {
+        success: 'border-emerald-500/30 bg-slate-900/95 text-emerald-300 shadow-emerald-500/10',
+        error: 'border-rose-500/30 bg-slate-900/95 text-rose-300 shadow-rose-500/10',
+        warn: 'border-amber-500/30 bg-slate-900/95 text-amber-300 shadow-amber-500/10',
+        info: 'border-cyan-500/30 bg-slate-900/95 text-cyan-300 shadow-cyan-500/10'
+      };
+      toast.className = `pointer-events-auto rounded-xl border p-3.5 shadow-lg text-xs flex items-center justify-between gap-3 transition-all duration-300 ${colors[type] || colors.info}`;
+      toast.innerHTML = `<span>${message}</span><button class="text-slate-400 hover:text-white" onclick="this.parentElement.remove()">&times;</button>`;
+      container.appendChild(toast);
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(-10px)';
+        setTimeout(() => toast.remove(), 300);
+      }, 4000);
+    }
+
+    // API Helper
+    async function api(url, options = {}) {
+      try {
+        const response = await fetch(url, {
+          headers: {'Content-Type': 'application/json'},
+          ...options
+        });
+        const data = await response.json().catch(() => ({}));
+        if (!response.ok) {
+          throw new Error(data.detail || data.message || `HTTP ${response.status}`);
+        }
+        return data;
+      } catch (err) {
+        throw err;
+      }
+    }
+
+    // Password Toggle
+    $('toggle-password').onclick = () => {
+      const input = $('password');
+      input.type = input.type === 'password' ? 'text' : 'password';
+    };
+
+    // Save Credentials
+    $('save-cred-btn').onclick = async () => {
+      const username = $('username').value.trim();
+      const password = $('password').value;
+      const proxy = $('proxy').value.trim();
+      if (!username) {
+        showToast('Username is required.', 'error');
+        return;
+      }
+      if (!password && !passwordSet) {
+        showToast('Password is required.', 'error');
+        return;
+      }
+
+      $('save-cred-btn').disabled = true;
+      $('save-cred-btn').innerHTML = '<span class="animate-spin inline-block h-3.5 w-3.5 border-2 border-slate-950 border-t-transparent rounded-full"></span> Saving...';
+
+      try {
+        await api('/api/config', {
+          method: 'POST',
+          body: JSON.stringify({username, password, proxy})
+        });
+        $('password').value = '';
+        passwordSet = true;
+        $('password').placeholder = 'Saved password remains hidden';
+        updateCredBadge(true);
+        showToast('Credentials & configuration saved successfully!', 'success');
+      } catch (e) {
+        showToast(`Failed to save: ${e.message}`, 'error');
+      } finally {
+        $('save-cred-btn').disabled = false;
+        $('save-cred-btn').innerHTML = `<svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Save Credentials`;
+      }
+    };
+
+    function updateCredBadge(saved) {
+      const pill = $('cred-status-pill');
+      if (saved) {
+        pill.className = 'rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-xs font-medium';
+        pill.textContent = 'Configured';
+      } else {
+        pill.className = 'rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2 py-0.5 text-xs font-medium';
+        pill.textContent = 'Not configured';
+      }
+    }
+
+    // Start Scrape
+    async function startScrape(mode) {
+      if (!passwordSet && !$('password').value) {
+        showToast('Please configure your credentials first.', 'warn');
+        return;
+      }
+      try {
+        await api('/api/scrape/start', {
+          method: 'POST',
+          body: JSON.stringify({
+            mode: mode,
+            headless: !$('headed').checked
+          })
+        });
+        showToast(`Scrape started in ${mode} mode.`, 'info');
+        refreshStatus();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    }
+
+    $('btn-fresh').onclick = () => {
+      const cached = parseInt($('stat-cached').textContent || '0', 10);
+      if (cached > 0) {
+        if (!confirm(`You already have ${cached} products saved in your database.\n\n• To continue scraping from where you left off, click Cancel and use "Resume Scrape".\n• To delete all cached products and start over from the beginning, click OK.`)) {
+          return;
+        }
+      }
+      startScrape('fresh');
+    };
+    $('btn-resume').onclick = () => startScrape('resume');
+    $('btn-enrich').onclick = () => startScrape('enrich');
+
+    // Stop Scrape
+    $('btn-stop').onclick = async () => {
+      $('btn-stop').disabled = true;
+      $('btn-stop').textContent = 'Stopping...';
+      try {
+        const res = await api('/api/scrape/stop', {method: 'POST'});
+        showToast(res.message, 'info');
+      } catch (e) {
+        showToast(e.message, 'error');
+      } finally {
+        refreshStatus();
+      }
+    };
+
+    // Clear Database Modal
+    $('btn-clear').onclick = () => {
+      if (isScraping) {
+        showToast('Cannot clear while scraping is active.', 'warn');
+        return;
+      }
+      $('confirm-modal').classList.remove('hidden');
+    };
+    $('cancel-clear-btn').onclick = () => $('confirm-modal').classList.add('hidden');
+    $('confirm-clear-btn').onclick = async () => {
+      $('confirm-modal').classList.add('hidden');
+      try {
+        await api('/api/products/clear', {method: 'POST'});
+        showToast('Catalog products cache cleared.', 'success');
+        refreshStatus();
+        loadProducts();
+        loadBrands();
+      } catch (e) {
+        showToast(e.message, 'error');
+      }
+    };
+
+    // Run History Modal
+    $('view-runs-btn').onclick = async () => {
+      $('runs-modal').classList.remove('hidden');
+      const tbody = $('runs-tbody');
+      tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">Loading history...</td></tr>';
+      try {
+        const runs = await api('/api/runs');
+        if (!runs.length) {
+          tbody.innerHTML = '<tr><td colspan="5" class="py-4 text-center text-slate-500">No runs recorded yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = runs.map(r => `
+          <tr class="hover:bg-slate-800/40">
+            <td class="py-2.5 font-mono text-slate-300">${(r.started_at || '').replace('T', ' ').slice(0, 19)}</td>
+            <td class="py-2.5 capitalize font-medium text-slate-200">${r.mode}</td>
+            <td class="py-2.5"><span class="px-2 py-0.5 rounded-full text-[10px] font-semibold ${
+              r.state === 'completed' ? 'bg-emerald-500/10 text-emerald-400' :
+              r.state === 'running' ? 'bg-cyan-500/10 text-cyan-400' :
+              r.state === 'stopped' ? 'bg-amber-500/10 text-amber-400' : 'bg-rose-500/10 text-rose-400'
+            }">${r.state}</span></td>
+            <td class="py-2.5 font-mono text-slate-300">${r.scraped_count}</td>
+            <td class="py-2.5 text-rose-400 max-w-xs truncate" title="${r.error || ''}">${r.error || '-'}</td>
+          </tr>
+        `).join('');
+      } catch (e) {
+        tbody.innerHTML = `<tr><td colspan="5" class="py-4 text-center text-rose-400">Failed to load: ${e.message}</td></tr>`;
+      }
+    };
+    $('close-runs-btn').onclick = () => $('runs-modal').classList.add('hidden');
+
+    // Live Status Refresh
+    async function refreshStatus() {
+      try {
+        const [config, scrape] = await Promise.all([
+          api('/api/config'),
+          api('/api/scrape/status')
+        ]);
+
+        // Config & KPIs
+        $('stat-cached').textContent = config.cached_products || 0;
+        $('stat-enriched').textContent = config.enriched_products || 0;
+        const pct = config.cached_products ? Math.round((config.enriched_products / config.cached_products) * 100) : 0;
+        $('stat-enriched-pct').textContent = `${pct}% enriched`;
+        $('stat-brands').textContent = config.total_brands || 0;
+
+        passwordSet = config.password_set;
+        updateCredBadge(config.username && passwordSet);
+        if (document.activeElement !== $('username') && !$('username').value) {
+          $('username').value = config.username || '';
+        }
+        if (document.activeElement !== $('proxy') && !$('proxy').value) {
+          $('proxy').value = config.proxy || '';
+        }
+        $('password').placeholder = passwordSet ? 'Saved password remains hidden' : 'Enter password';
+
+        // Scrape State & Controls
+        const state = (scrape.state || 'idle').toLowerCase();
+        isScraping = ['running', 'authenticating', 'scraping', 'discovering', 'enriching', 'stopping'].includes(state);
+
+        // State Badge
+        const badgeColors = {
+          idle: 'bg-slate-800 text-slate-300',
+          authenticating: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
+          scraping: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
+          discovering: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
+          enriching: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
+          stopping: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+          completed: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
+          error: 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
+        };
+        $('stat-badge').className = `inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${badgeColors[state] || badgeColors.idle}`;
+        $('stat-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full ${isScraping ? 'bg-cyan-400 animate-pulse' : 'bg-slate-400'}"></span>${state}`;
+
+        $('stat-elapsed').textContent = `${scrape.elapsed_seconds || 0}s`;
+        $('progress-elapsed').textContent = `${scrape.elapsed_seconds || 0}s`;
+        $('progress-phase').textContent = state;
+        $('progress-brand').textContent = scrape.current_brand || '-';
+
+        // Auto-refresh live catalog table whenever cached count increases or state changes
+        const cachedCount = config.cached_products || 0;
+        const enrichedCount = config.enriched_products || 0;
+        if (lastCachedCount !== -1 && (cachedCount !== lastCachedCount || enrichedCount !== lastEnrichedCount)) {
+          if (currentPage === 1 && document.activeElement !== $('search-input') && !isRefreshingTable) {
+            isRefreshingTable = true;
+            loadProducts().finally(() => { isRefreshingTable = false; });
+            loadBrands();
+          }
+        }
+        lastCachedCount = cachedCount;
+        lastEnrichedCount = enrichedCount;
+
+        // Buttons state
+        $('btn-fresh').disabled = isScraping;
+        $('btn-resume').disabled = isScraping;
+        $('btn-enrich').disabled = isScraping || !hasCached;
+        $('btn-stop').disabled = !isScraping;
+        $('btn-stop').innerHTML = state === 'stopping' ? '<span class="animate-spin inline-block h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span> Stopping...' : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg> Stop`;
+
+        const hasCached = (config.cached_products || 0) > 0;
+        $('btn-export').classList.toggle('opacity-50', !hasCached);
+        $('btn-export').classList.toggle('pointer-events-none', !hasCached);
+
+        // Progress bar calculation
+        const current = scrape.scraped_count || 0;
+        const total = scrape.total_estimated || 0;
+        let progressPercent = 0;
+        if (total > 0) {
+          progressPercent = Math.min(100, Math.round((current / total) * 100));
+        } else if (state === 'discovering') {
+          progressPercent = 30; // visual indeterminate discovery
+        }
+        $('progress-bar').style.width = `${progressPercent}%`;
+        $('progress-count').textContent = total > 0 ? `${current} / ${total} (${progressPercent}%)` : `${current} discovered`;
+
+        // Active item label
+        if (scrape.current_item) {
+          $('active-item-title').textContent = `· ${scrape.current_item}`;
+          $('active-item-title').classList.remove('hidden');
+        } else {
+          $('active-item-title').classList.add('hidden');
+        }
+
+        // Terminal Logs
+        renderLogs(scrape.recent_logs || []);
+
+      } catch (err) {
+        $('connection-status').textContent = 'Connecting...';
+        $('live-ping').classList.add('hidden');
+      }
+    }
+
+    // Terminal log rendering
+    function renderLogs(logs) {
+      const terminal = $('logs-terminal');
+      if (!logs.length) return;
+
+      const shouldScroll = $('autoscroll-chk').checked;
+      const html = logs.map(entry => {
+        const lvl = entry.level || 'info';
+        const badgeColor = {
+          error: 'text-rose-400 bg-rose-500/10 border-rose-500/20',
+          warn: 'text-amber-400 bg-amber-500/10 border-amber-500/20',
+          success: 'text-emerald-400 bg-emerald-500/10 border-emerald-500/20',
+          info: 'text-cyan-400 bg-cyan-500/10 border-cyan-500/20'
+        }[lvl] || 'text-slate-400 bg-slate-800';
+
+        const textColor = {
+          error: 'text-rose-300 font-medium',
+          warn: 'text-amber-200',
+          success: 'text-emerald-200',
+          info: 'text-slate-200'
+        }[lvl] || 'text-slate-300';
+
+        return `<div class="flex items-start gap-2 py-0.5">
+          <span class="text-slate-600 select-none">${entry.time || ''}</span>
+          <span class="rounded px-1.5 py-0.2 text-[10px] uppercase font-bold border ${badgeColor}">${lvl}</span>
+          <span class="${textColor} flex-1 break-all">${escapeHtml(entry.message)}</span>
+        </div>`;
+      }).join('');
+
+      terminal.innerHTML = html;
+      if (shouldScroll) {
+        terminal.scrollTop = terminal.scrollHeight;
+      }
+    }
+
+    $('clear-logs-btn').onclick = () => {
+      $('logs-terminal').innerHTML = '<div class="text-slate-500">// Logs cleared.</div>';
+    };
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Load Products Table
+    async function loadProducts() {
+      try {
+        const queryParams = new URLSearchParams({
+          page: currentPage,
+          page_size: pageSize,
+          q: searchQuery,
+          brand: selectedBrand
+        });
+        const res = await api(`/api/products?${queryParams.toString()}`);
+        const tbody = $('products-tbody');
+
+        if (!res.items || !res.items.length) {
+          tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-12 text-center text-slate-500">
+            ${searchQuery || selectedBrand ? 'No products match your search/filter criteria.' : 'No cached products found yet. Start a scrape run to populate the catalog.'}
+          </td></tr>`;
+          $('page-info').textContent = 'Showing 0 to 0 of 0 entries';
+          $('prev-page-btn').disabled = true;
+          $('next-page-btn').disabled = true;
+          return;
+        }
+
+        tbody.innerHTML = res.items.map(p => {
+          const imgUrl = p.image_url || '';
+          const hasImage = Boolean(imgUrl);
+          const supplyPrice = p.supply_price ? `$${p.supply_price}` : '-';
+          let subtotal = p.subtotal_price ? `$${p.subtotal_price}` : '-';
+          if (subtotal === '-' && p.supply_price && p.moq) {
+            try {
+              const sp = parseFloat(p.supply_price);
+              const mq = parseInt(p.moq, 10);
+              if (sp > 0 && mq > 0) subtotal = `$${(sp * mq).toFixed(2)}`;
+            } catch (e) {}
+          }
+
+          return `<tr class="hover:bg-slate-800/40 transition group">
+            <td class="px-3 py-2.5 whitespace-nowrap">
+              ${hasImage ? `
+                <img src="${escapeHtml(imgUrl)}" alt="" class="h-10 w-10 rounded-lg object-contain bg-slate-900 border border-slate-800 p-0.5 cursor-pointer hover:border-cyan-400 transition" onclick="previewImage('${escapeHtml(imgUrl)}', '${escapeHtml(p.description)}')">
+              ` : `
+                <div class="h-10 w-10 rounded-lg bg-slate-900 border border-slate-800 flex items-center justify-center text-slate-600">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                </div>
+              `}
+            </td>
+            <td class="px-3 py-2.5 whitespace-nowrap">
+              <span class="inline-flex items-center rounded-md bg-indigo-500/10 text-indigo-300 border border-indigo-500/20 px-2 py-0.5 text-xs font-medium">
+                ${escapeHtml(p.brand || 'Unbranded')}
+              </span>
+            </td>
+            <td class="px-3 py-2.5 max-w-xs">
+              <div class="font-medium text-slate-200 truncate" title="${escapeHtml(p.description)}">
+                ${p.product_url ? `<a href="${escapeHtml(p.product_url)}" target="_blank" rel="noopener noreferrer" class="hover:text-cyan-400 hover:underline">${escapeHtml(p.description || p.product_id)}</a>` : escapeHtml(p.description || p.product_id)}
+              </div>
+              <div class="text-[10px] text-slate-500 font-mono">ID: ${escapeHtml(p.product_id || p.key)}</div>
+            </td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-semibold text-emerald-400">${supplyPrice}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">
+              ${p.barcode ? `
+                <span class="inline-flex items-center gap-1 cursor-pointer hover:text-cyan-400" onclick="copyText('${escapeHtml(p.barcode)}')" title="Click to copy barcode">
+                  ${escapeHtml(p.barcode)}
+                  <svg class="w-3 h-3 opacity-40 group-hover:opacity-100" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg>
+                </span>
+              ` : '<span class="text-slate-600">-</span>'}
+            </td>
+            <td class="px-3 py-2.5 whitespace-nowrap text-slate-300 font-medium">${p.lead_time || '-'}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.moq || '-'}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.inbox || '-'}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.outbox || '-'}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap font-semibold text-cyan-400">${subtotal}</td>
+            <td class="px-3 py-2.5 whitespace-nowrap text-center">
+              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${p.enriched ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">
+                <span class="h-1 w-1 rounded-full ${p.enriched ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
+                ${p.enriched ? 'Enriched' : 'Discovered'}
+              </span>
+            </td>
+          </tr>`;
+        }).join('');
+
+        const startIdx = (res.page - 1) * res.page_size + 1;
+        const endIdx = Math.min(res.total, res.page * res.page_size);
+        $('page-info').textContent = `Showing ${startIdx} to ${endIdx} of ${res.total} entries`;
+        $('current-page-badge').textContent = res.page;
+        $('prev-page-btn').disabled = res.page <= 1;
+        $('next-page-btn').disabled = res.page >= res.total_pages;
+
+      } catch (err) {
+        $('products-tbody').innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-rose-400">Failed to load catalog table: ${err.message}</td></tr>`;
+      }
+    }
+
+    // Load Brands Filter Dropdown
+    async function loadBrands() {
+      try {
+        const brands = await api('/api/brands');
+        const select = $('brand-filter');
+        const current = select.value;
+        select.innerHTML = '<option value="">All Brands</option>' + brands.map(b => `
+          <option value="${escapeHtml(b)}" ${b === current ? 'selected' : ''}>${escapeHtml(b)}</option>
+        `).join('');
+      } catch (e) {}
+    }
+
+    // Image preview helper
+    window.previewImage = (url, caption) => {
+      $('modal-img').src = url;
+      $('modal-img-caption').textContent = caption || '';
+      $('img-modal').classList.remove('hidden');
+    };
+
+    // Copy to clipboard helper
+    window.copyText = (text) => {
+      navigator.clipboard.writeText(text);
+      showToast(`Copied barcode "${text}" to clipboard`, 'info');
+    };
+
+    // Search & Filter event listeners
+    $('search-input').oninput = (e) => {
+      clearTimeout(searchDebounce);
+      searchDebounce = setTimeout(() => {
+        searchQuery = e.target.value;
+        currentPage = 1;
+        loadProducts();
+      }, 350);
+    };
+
+    $('brand-filter').onchange = (e) => {
+      selectedBrand = e.target.value;
+      currentPage = 1;
+      loadProducts();
+    };
+
+    $('refresh-table-btn').onclick = () => {
+      loadProducts();
+      loadBrands();
+    };
+
+    $('page-size-select').onchange = (e) => {
+      pageSize = parseInt(e.target.value, 10);
+      currentPage = 1;
+      loadProducts();
+    };
+
+    $('prev-page-btn').onclick = () => {
+      if (currentPage > 1) {
+        currentPage--;
+        loadProducts();
+      }
+    };
+
+    $('next-page-btn').onclick = () => {
+      currentPage++;
+      loadProducts();
+    };
+
+    // Polling cycles: 1.2s for status & live change detection, 2.5s table refresh while scraping
+    refreshStatus();
+    loadProducts();
+    loadBrands();
+
+    setInterval(refreshStatus, 1200);
+    setInterval(() => {
+      if (isScraping && currentPage === 1 && document.activeElement !== $('search-input') && !isRefreshingTable) {
+        isRefreshingTable = true;
+        loadProducts().finally(() => { isRefreshingTable = false; });
+      }
+    }, 2500);
+  </script>
+</body>
+</html>

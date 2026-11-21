@@ -1,0 +1,12 @@
+.venv/
+__pycache__/
+.env
+storage_state.json
+yesbee_catalog.db
+yesbee_catalog.db-shm
+yesbee_catalog.db-wal
+login_debug.png
+login_debug.html
+dist/
+build/
+*.spec

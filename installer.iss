@@ -1,5 +1,3 @@
-# This script creates the Windows setup file.
-
 [Setup]
 AppName=Yesbee Catalog
 AppVersion=1.0.0

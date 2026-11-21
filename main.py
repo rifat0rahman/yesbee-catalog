@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import asyncio
+import io
 import os
 import sys
 import threading
@@ -20,6 +21,13 @@ from pydantic import BaseModel, Field
 from database import CatalogDatabase
 from scraper import ScrapeOptions, ScrapeStatus, YesbeeScraper
 
+
+if getattr(sys, "frozen", False):
+    # The PyInstaller --windowed launcher has no console streams.
+    if sys.stdout is None:
+        sys.stdout = io.StringIO()
+    if sys.stderr is None:
+        sys.stderr = io.StringIO()
 
 # Source files are read-only in PyInstaller builds. Keep user data in LOCALAPPDATA.
 ROOT = Path(__file__).resolve().parent
@@ -221,4 +229,10 @@ async def export_csv() -> StreamingResponse:
 
 
 if __name__ == "__main__":
-    uvicorn.run("main:app", host="127.0.0.1", port=8000, reload=False)
+    uvicorn.run(
+        app,
+        host="127.0.0.1",
+        port=8000,
+        reload=False,
+        log_config=None,
+    )

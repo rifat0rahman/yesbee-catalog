@@ -10,3 +10,4 @@ login_debug.html
 dist/
 build/
 *.spec
+node_modules/

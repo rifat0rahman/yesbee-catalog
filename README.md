@@ -26,6 +26,16 @@ A local FastAPI & Playwright application that logs into Yesbee wholesale catalog
 
 ## Windows Distribution
 
+### Source ZIP option
+
+The client can download the project as a ZIP, extract it, and double-click `setup_windows.bat`. Setup can install Python 3.13 automatically, create the virtual environment, install dependencies and Chromium, and create a **Yesbee Catalog** desktop icon.
+
+After setup, double-click that desktop icon whenever the app is needed. It starts the local server at `http://127.0.0.1:8000` and opens the default browser.
+
+Do not include `.env`, `storage_state.json`, `yesbee_catalog.db`, or `.venv` in the ZIP. Never share your credentials or login session.
+
+### Installer option
+
 Download and run `YesbeeCatalogSetup.exe`. The installer creates a **Yesbee Catalog** desktop icon and Start menu entry. Double-click the desktop icon to start the app and open it in the default browser at `http://127.0.0.1:8000`.
 
 ---

@@ -1,6 +1,6 @@
 # Yesbee Wholesale Catalog Exporter
 
-A local FastAPI & Playwright application that logs into Yesbee wholesale catalog, discovers all wholesale products, caches them in SQLite, enriches detailed specifications (Barcode, Lead Time, MOQ, Inbox/Outbox, High-Res Images), and exports Excel-compatible UTF-8 CSV spreadsheets.
+A local FastAPI & Playwright application that logs into Yesbee wholesale catalog, fetches all wholesale products at high speed, caches them in SQLite, and exports clean Excel-compatible UTF-8 CSV spreadsheets (Brand, Description, Supply Price, Barcode, Lead Time, MOQ, Subtotal Price, Image URL).
 
 ---
 

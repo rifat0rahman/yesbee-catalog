@@ -61,7 +61,7 @@ class ConfigPayload(BaseModel):
 
 
 class StartPayload(BaseModel):
-    mode: str = Field(pattern="^(fresh|resume|enrich)$")
+    mode: str = Field(pattern="^(fresh|resume)$")
     headless: bool = True
 
 
@@ -153,9 +153,6 @@ async def start_scrape(payload: StartPayload) -> dict[str, str]:
     if not values["username"].strip() or not values["password"].strip():
         raise HTTPException(400, "Please enter and save your Yesbee Username and Password first.")
 
-    if payload.mode == "enrich" and database.stats()["cached_products"] == 0:
-        raise HTTPException(400, "No cached products found in database to enrich. Please run 'Start Full Scrape' first.")
-
     status.state = "idle"
     active_task = asyncio.create_task(_run_scrape(payload))
     return {"message": f"Scrape initiated in {payload.mode} mode."}
@@ -175,8 +172,10 @@ async def stop_scrape() -> dict[str, str]:
         except (asyncio.TimeoutError, asyncio.CancelledError):
             if active_task and not active_task.done():
                 active_task.cancel()
-        return {"message": "Scrape stopped; all discovered and enriched rows are preserved."}
+        status.state = "stopped"
+        return {"message": "Scrape stopped; all cached rows are preserved."}
 
+    status.state = "stopped"
     return {"message": "No scrape is currently active."}
 
 

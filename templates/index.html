@@ -47,7 +47,7 @@
             <h1 class="text-lg font-bold text-slate-100 tracking-tight">Yesbee Wholesale Exporter</h1>
             <span class="rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 text-xs font-semibold">v2.0</span>
           </div>
-          <p class="text-xs text-slate-400">Local Catalog Scraper, Detail Enricher & Excel CSV Generator</p>
+          <p class="text-xs text-slate-400">High-Speed Wholesale Catalog Scraper & Excel CSV Exporter</p>
         </div>
       </div>
 
@@ -85,12 +85,11 @@
 
       <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
         <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
-          <span>Enriched Details</span>
-          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span>Last Scraped</span>
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
         </div>
         <div class="flex items-baseline gap-2">
-          <span id="stat-enriched" class="text-2xl font-bold text-emerald-400 tracking-tight">0</span>
-          <span id="stat-enriched-pct" class="text-xs text-slate-500">0%</span>
+          <span id="stat-last-scrape" class="text-sm font-semibold text-slate-200 tracking-tight truncate">Never</span>
         </div>
       </div>
 
@@ -217,11 +216,6 @@
               Resume Scrape
             </button>
 
-            <button id="btn-enrich" class="inline-flex items-center gap-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-semibold px-4 py-2.5 text-sm transition shadow-md shadow-purple-600/20 disabled:opacity-50 disabled:cursor-not-allowed" title="Fetch Lead Time, Inbox, and Outbox for currently cached products">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"/></svg>
-              Enrich Details
-            </button>
-
             <button id="btn-stop" class="inline-flex items-center gap-2 rounded-xl bg-rose-600/90 hover:bg-rose-500 text-white font-semibold px-4 py-2.5 text-sm transition disabled:opacity-40 disabled:cursor-not-allowed" disabled>
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
               Stop
@@ -245,7 +239,7 @@
                 <span id="progress-phase" class="text-cyan-400 capitalize">Idle</span>
                 <span id="active-item-title" class="text-slate-400 max-w-xs truncate hidden"></span>
               </div>
-              <span id="progress-count" class="text-slate-300 font-mono">0 / 0 items (0%)</span>
+              <span id="progress-count" class="text-slate-300 font-mono">0 products saved</span>
             </div>
 
             <div class="h-2.5 w-full overflow-hidden rounded-full bg-slate-800">
@@ -303,16 +297,13 @@
               <th scope="col" class="px-3 py-2.5">Barcode</th>
               <th scope="col" class="px-3 py-2.5">Lead Time</th>
               <th scope="col" class="px-3 py-2.5">MOQ</th>
-              <th scope="col" class="px-3 py-2.5">Inbox</th>
-              <th scope="col" class="px-3 py-2.5">Outbox</th>
               <th scope="col" class="px-3 py-2.5">Subtotal</th>
-              <th scope="col" class="px-3 py-2.5 text-center">Status</th>
             </tr>
           </thead>
           <tbody id="products-tbody" class="divide-y divide-slate-800/60 font-normal">
             <!-- Populated via JavaScript -->
             <tr>
-              <td colspan="11" class="px-4 py-12 text-center text-slate-500">
+              <td colspan="8" class="px-4 py-12 text-center text-slate-500">
                 <svg class="mx-auto h-8 w-8 text-slate-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/></svg>
                 No cached products found yet. Start a scrape run to populate the catalog.
               </td>
@@ -432,7 +423,6 @@
     let isScraping = false;
     let searchDebounce = null;
     let lastCachedCount = -1;
-    let lastEnrichedCount = -1;
     let isRefreshingTable = false;
 
     // Toast Notifications
@@ -555,19 +545,18 @@
       startScrape('fresh');
     };
     $('btn-resume').onclick = () => startScrape('resume');
-    $('btn-enrich').onclick = () => startScrape('enrich');
 
     // Stop Scrape
     $('btn-stop').onclick = async () => {
       $('btn-stop').disabled = true;
-      $('btn-stop').textContent = 'Stopping...';
+      $('btn-stop').innerHTML = '<span class="animate-spin inline-block h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span> Stopping...';
       try {
         const res = await api('/api/scrape/stop', {method: 'POST'});
         showToast(res.message, 'info');
       } catch (e) {
         showToast(e.message, 'error');
       } finally {
-        refreshStatus();
+        await refreshStatus();
       }
     };
 
@@ -632,11 +621,9 @@
         ]);
 
         // Config & KPIs
-        $('stat-cached').textContent = config.cached_products || 0;
-        $('stat-enriched').textContent = config.enriched_products || 0;
-        const pct = config.cached_products ? Math.round((config.enriched_products / config.cached_products) * 100) : 0;
-        $('stat-enriched-pct').textContent = `${pct}% enriched`;
-        $('stat-brands').textContent = config.total_brands || 0;
+        $('stat-cached').textContent = (config.cached_products || 0).toLocaleString();
+        $('stat-last-scrape').textContent = config.last_full_scrape ? config.last_full_scrape.replace('T', ' ').slice(0, 19) : 'Never';
+        $('stat-brands').textContent = (config.total_brands || 0).toLocaleString();
 
         passwordSet = config.password_set;
         updateCredBadge(config.username && passwordSet);
@@ -650,7 +637,7 @@
 
         // Scrape State & Controls
         const state = (scrape.state || 'idle').toLowerCase();
-        isScraping = ['running', 'authenticating', 'scraping', 'discovering', 'enriching', 'stopping'].includes(state);
+        isScraping = ['running', 'authenticating', 'scraping', 'discovering'].includes(state);
 
         // State Badge
         const badgeColors = {
@@ -658,8 +645,8 @@
           authenticating: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
           scraping: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
           discovering: 'bg-cyan-500/10 text-cyan-400 border border-cyan-500/20',
-          enriching: 'bg-indigo-500/10 text-indigo-400 border border-indigo-500/20',
           stopping: 'bg-rose-500/10 text-rose-400 border border-rose-500/20',
+          stopped: 'bg-amber-500/10 text-amber-400 border border-amber-500/20',
           completed: 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20',
           error: 'bg-rose-500/10 text-rose-400 border border-rose-500/20'
         };
@@ -673,8 +660,7 @@
 
         // Auto-refresh live catalog table whenever cached count increases or state changes
         const cachedCount = config.cached_products || 0;
-        const enrichedCount = config.enriched_products || 0;
-        if (lastCachedCount !== -1 && (cachedCount !== lastCachedCount || enrichedCount !== lastEnrichedCount)) {
+        if (lastCachedCount !== -1 && cachedCount !== lastCachedCount) {
           if (currentPage === 1 && document.activeElement !== $('search-input') && !isRefreshingTable) {
             isRefreshingTable = true;
             loadProducts().finally(() => { isRefreshingTable = false; });
@@ -682,30 +668,33 @@
           }
         }
         lastCachedCount = cachedCount;
-        lastEnrichedCount = enrichedCount;
 
         // Buttons state
-        $('btn-fresh').disabled = isScraping;
-        $('btn-resume').disabled = isScraping;
-        $('btn-enrich').disabled = isScraping || !hasCached;
-        $('btn-stop').disabled = !isScraping;
-        $('btn-stop').innerHTML = state === 'stopping' ? '<span class="animate-spin inline-block h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span> Stopping...' : `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg> Stop`;
+        $('btn-fresh').disabled = isScraping || state === 'stopping';
+        $('btn-resume').disabled = isScraping || state === 'stopping';
+
+        if (state === 'stopping') {
+          $('btn-stop').disabled = true;
+          $('btn-stop').innerHTML = '<span class="animate-spin inline-block h-3.5 w-3.5 border-2 border-white border-t-transparent rounded-full"></span> Stopping...';
+        } else {
+          $('btn-stop').disabled = !isScraping;
+          $('btn-stop').innerHTML = `<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg> Stop`;
+        }
 
         const hasCached = (config.cached_products || 0) > 0;
         $('btn-export').classList.toggle('opacity-50', !hasCached);
         $('btn-export').classList.toggle('pointer-events-none', !hasCached);
 
-        // Progress bar calculation
+        // Progress bar calculation (dynamic count, no fixed numbers)
         const current = scrape.scraped_count || 0;
-        const total = scrape.total_estimated || 0;
-        let progressPercent = 0;
-        if (total > 0) {
-          progressPercent = Math.min(100, Math.round((current / total) * 100));
-        } else if (state === 'discovering') {
-          progressPercent = 30; // visual indeterminate discovery
+        $('progress-count').textContent = `${current.toLocaleString()} products saved`;
+        if (isScraping) {
+          $('progress-bar').style.width = '100%';
+          $('progress-bar').classList.add('animate-pulse');
+        } else {
+          $('progress-bar').style.width = current > 0 ? '100%' : '0%';
+          $('progress-bar').classList.remove('animate-pulse');
         }
-        $('progress-bar').style.width = `${progressPercent}%`;
-        $('progress-count').textContent = total > 0 ? `${current} / ${total} (${progressPercent}%)` : `${current} discovered`;
 
         // Active item label
         if (scrape.current_item) {
@@ -782,7 +771,7 @@
         const tbody = $('products-tbody');
 
         if (!res.items || !res.items.length) {
-          tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-12 text-center text-slate-500">
+          tbody.innerHTML = `<tr><td colspan="8" class="px-4 py-12 text-center text-slate-500">
             ${searchQuery || selectedBrand ? 'No products match your search/filter criteria.' : 'No cached products found yet. Start a scrape run to populate the catalog.'}
           </td></tr>`;
           $('page-info').textContent = 'Showing 0 to 0 of 0 entries';
@@ -836,15 +825,7 @@
             </td>
             <td class="px-3 py-2.5 whitespace-nowrap text-slate-300 font-medium">${p.lead_time || '-'}</td>
             <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.moq || '-'}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.inbox || '-'}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap font-mono text-slate-300">${p.outbox || '-'}</td>
             <td class="px-3 py-2.5 whitespace-nowrap font-semibold text-cyan-400">${subtotal}</td>
-            <td class="px-3 py-2.5 whitespace-nowrap text-center">
-              <span class="inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-[10px] font-medium ${p.enriched ? 'bg-emerald-500/10 text-emerald-400 border border-emerald-500/20' : 'bg-slate-800 text-slate-400'}">
-                <span class="h-1 w-1 rounded-full ${p.enriched ? 'bg-emerald-400' : 'bg-slate-500'}"></span>
-                ${p.enriched ? 'Enriched' : 'Discovered'}
-              </span>
-            </td>
           </tr>`;
         }).join('');
 
@@ -856,7 +837,7 @@
         $('next-page-btn').disabled = res.page >= res.total_pages;
 
       } catch (err) {
-        $('products-tbody').innerHTML = `<tr><td colspan="11" class="px-4 py-8 text-center text-rose-400">Failed to load catalog table: ${err.message}</td></tr>`;
+        $('products-tbody').innerHTML = `<tr><td colspan="8" class="px-4 py-8 text-center text-rose-400">Failed to load catalog table: ${err.message}</td></tr>`;
       }
     }
 

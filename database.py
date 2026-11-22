@@ -17,8 +17,6 @@ EXPORT_COLUMNS = (
     "Barcode",
     "Lead Time",
     "MOQ",
-    "Inbox",
-    "Outbox",
     "Subtotal Price",
     "Image URL",
 )
@@ -98,11 +96,9 @@ class CatalogDatabase:
                     barcode TEXT NOT NULL DEFAULT '',
                     lead_time TEXT NOT NULL DEFAULT '',
                     moq TEXT NOT NULL DEFAULT '',
-                    inbox TEXT NOT NULL DEFAULT '',
-                    outbox TEXT NOT NULL DEFAULT '',
                     subtotal_price TEXT NOT NULL DEFAULT '',
                     image_url TEXT NOT NULL DEFAULT '',
-                    enriched INTEGER NOT NULL DEFAULT 0,
+                    enriched INTEGER NOT NULL DEFAULT 1,
                     last_scraped_at TEXT NOT NULL,
                     run_id TEXT NOT NULL DEFAULT ''
                 );
@@ -194,8 +190,6 @@ class CatalogDatabase:
         supply_price = clean_number(product.get("supply_price"))
         lead_time = str(product.get("lead_time") or "").strip()
         moq = clean_number(product.get("moq"), integer=True)
-        inbox = clean_number(product.get("inbox"), integer=True)
-        outbox = clean_number(product.get("outbox"), integer=True)
         subtotal_price = clean_number(product.get("subtotal_price"))
         if not subtotal_price and supply_price and moq:
             try:
@@ -214,7 +208,7 @@ class CatalogDatabase:
             existing = connection.execute(
                 """
                 SELECT key, brand, description, supply_price, barcode, lead_time,
-                       moq, inbox, outbox, subtotal_price, image_url, enriched
+                       moq, subtotal_price, image_url, enriched
                 FROM products
                 WHERE key=? OR (product_id != '' AND product_id=?) OR (product_url != '' AND product_url=?)
                 """,
@@ -230,8 +224,6 @@ class CatalogDatabase:
                 final_barcode = barcode or existing["barcode"]
                 final_lead = lead_time or existing["lead_time"]
                 final_moq = moq or existing["moq"]
-                final_inbox = inbox or existing["inbox"]
-                final_outbox = outbox or existing["outbox"]
                 final_subtotal = subtotal_price or existing["subtotal_price"]
                 if not final_subtotal and final_price and final_moq:
                     try:
@@ -239,7 +231,7 @@ class CatalogDatabase:
                     except Exception:
                         pass
                 final_img = image_url or existing["image_url"]
-                final_enriched = 1 if (enriched or (final_lead and final_inbox) or existing["enriched"]) else 0
+                final_enriched = 1 if (enriched or final_lead or existing["enriched"]) else 0
 
                 connection.execute(
                     """
@@ -252,8 +244,6 @@ class CatalogDatabase:
                         barcode = ?,
                         lead_time = ?,
                         moq = ?,
-                        inbox = ?,
-                        outbox = ?,
                         subtotal_price = ?,
                         image_url = ?,
                         enriched = ?,
@@ -270,8 +260,6 @@ class CatalogDatabase:
                         final_barcode,
                         final_lead,
                         final_moq,
-                        final_inbox,
-                        final_outbox,
                         final_subtotal,
                         final_img,
                         final_enriched,
@@ -285,9 +273,9 @@ class CatalogDatabase:
                     """
                     INSERT INTO products (
                         key, product_id, product_url, brand, description, supply_price,
-                        barcode, lead_time, moq, inbox, outbox, subtotal_price,
+                        barcode, lead_time, moq, subtotal_price,
                         image_url, enriched, last_scraped_at, run_id
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
                     """,
                     (
                         key,
@@ -299,8 +287,6 @@ class CatalogDatabase:
                         barcode,
                         lead_time,
                         moq,
-                        inbox,
-                        outbox,
                         subtotal_price,
                         image_url,
                         1 if enriched else 0,
@@ -308,6 +294,105 @@ class CatalogDatabase:
                         run_id,
                     ),
                 )
+
+    def upsert_products(
+        self,
+        products: list[Mapping[str, object]],
+        run_id: str,
+        *,
+        enriched: bool = False,
+    ) -> int:
+        """Write a group of normalized products in one SQLite transaction."""
+        if not products:
+            return 0
+
+        rows: list[tuple[Any, ...]] = []
+        now = utc_now()
+
+        for product in products:
+            barcode = clean_barcode(product.get("barcode"))
+            product_id = str(product.get("product_id") or "").strip()
+            product_url = str(product.get("product_url") or "").strip()
+            key = self.product_key(product)
+            if not key:
+                continue
+
+            if product_id and not product_url:
+                product_url = f"https://www.yesbee.com/product/{product_id}/"
+            elif product_url and not product_id:
+                match = re.search(r"/product/([0-9]+)", product_url)
+                if match:
+                    product_id = match.group(1)
+                    product_url = f"https://www.yesbee.com/product/{product_id}/"
+
+            brand = clean_brand(product.get("brand"))
+            description = str(product.get("description") or "").strip()
+            supply_price = clean_number(product.get("supply_price"))
+            lead_time = str(product.get("lead_time") or "").strip()
+            moq = clean_number(product.get("moq"), integer=True)
+            subtotal_price = clean_number(product.get("subtotal_price"))
+            if not subtotal_price and supply_price and moq:
+                try:
+                    sp = float(supply_price)
+                    mq = int(moq)
+                    if sp > 0 and mq > 0:
+                        subtotal_price = f"{sp * mq:.2f}"
+                except (TypeError, ValueError, OverflowError):
+                    pass
+
+            image_url = str(product.get("image_url") or "").strip()
+            row_enriched = 1 if (enriched or bool(product.get("_enriched")) or lead_time) else 0
+            rows.append(
+                (
+                    key,
+                    product_id,
+                    product_url,
+                    brand,
+                    description,
+                    supply_price,
+                    barcode,
+                    lead_time,
+                    moq,
+                    subtotal_price,
+                    image_url,
+                    1 if row_enriched else 0,
+                    now,
+                    run_id,
+                )
+            )
+
+        if not rows:
+            return 0
+
+        with self.connection() as connection:
+            connection.executemany(
+                """
+                INSERT INTO products (
+                    key, product_id, product_url, brand, description, supply_price,
+                    barcode, lead_time, moq, subtotal_price,
+                    image_url, enriched, last_scraped_at, run_id
+                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                ON CONFLICT(key) DO UPDATE SET
+                    product_id = COALESCE(NULLIF(excluded.product_id, ''), products.product_id),
+                    product_url = COALESCE(NULLIF(excluded.product_url, ''), products.product_url),
+                    brand = COALESCE(NULLIF(excluded.brand, ''), products.brand),
+                    description = COALESCE(NULLIF(excluded.description, ''), products.description),
+                    supply_price = COALESCE(NULLIF(excluded.supply_price, ''), products.supply_price),
+                    barcode = COALESCE(NULLIF(excluded.barcode, ''), products.barcode),
+                    lead_time = COALESCE(NULLIF(excluded.lead_time, ''), products.lead_time),
+                    moq = COALESCE(NULLIF(excluded.moq, ''), products.moq),
+                    subtotal_price = COALESCE(NULLIF(excluded.subtotal_price, ''), products.subtotal_price),
+                    image_url = COALESCE(NULLIF(excluded.image_url, ''), products.image_url),
+                    enriched = CASE
+                        WHEN excluded.enriched = 1 OR products.enriched = 1 THEN 1
+                        ELSE 0
+                    END,
+                    last_scraped_at = excluded.last_scraped_at,
+                    run_id = excluded.run_id
+                """,
+                rows,
+            )
+        return len(rows)
 
     def start_run(self, run_id: str, mode: str) -> None:
         with self.connection() as connection:
@@ -337,7 +422,6 @@ class CatalogDatabase:
     def stats(self) -> dict[str, object]:
         with self.connection() as connection:
             count = connection.execute("SELECT COUNT(*) FROM products").fetchone()[0]
-            enriched_count = connection.execute("SELECT COUNT(*) FROM products WHERE enriched=1").fetchone()[0]
             latest = connection.execute("SELECT MAX(last_scraped_at) FROM products").fetchone()[0]
             incomplete = connection.execute(
                 "SELECT COUNT(*) FROM scrape_runs WHERE state='running'"
@@ -345,7 +429,6 @@ class CatalogDatabase:
             brands_count = connection.execute("SELECT COUNT(DISTINCT brand) FROM products WHERE brand != ''").fetchone()[0]
         return {
             "cached_products": count,
-            "enriched_products": enriched_count,
             "total_brands": brands_count,
             "last_full_scrape": latest,
             "incomplete_run": bool(incomplete),
@@ -380,8 +463,8 @@ class CatalogDatabase:
             total = connection.execute(f"SELECT COUNT(*) FROM products {where}", params).fetchone()[0]
             query = f"""
                 SELECT key, product_id, product_url, brand, description,
-                       supply_price, barcode, lead_time, moq, inbox, outbox,
-                       subtotal_price, image_url, enriched, last_scraped_at
+                       supply_price, barcode, lead_time, moq,
+                       subtotal_price, image_url, last_scraped_at
                 FROM products
                 {where}
                 ORDER BY last_scraped_at DESC, brand ASC
@@ -405,19 +488,21 @@ class CatalogDatabase:
             ).fetchall()
             return [row[0] for row in rows]
 
-    def get_unenriched_products(self) -> list[dict[str, Any]]:
+    def get_cached_keys(self) -> set[str]:
         with self.connection() as connection:
             rows = connection.execute(
-                """
-                SELECT key, product_id, product_url, brand, description,
-                       supply_price, barcode, lead_time, moq, inbox, outbox,
-                       subtotal_price, image_url, enriched
-                FROM products
-                WHERE enriched = 0 OR lead_time = '' OR inbox = '' OR outbox = '' OR subtotal_price = ''
-                ORDER BY last_scraped_at DESC
-                """
+                "SELECT key, product_id, product_url, barcode FROM products"
             ).fetchall()
-            return [dict(row) for row in rows]
+
+        keys: set[str] = set()
+        for row in rows:
+            for value in (row["key"], row["product_id"], row["product_url"], clean_barcode(row["barcode"])):
+                if value:
+                    keys.add(str(value).strip())
+        return keys
+
+    def get_enriched_keys(self) -> set[str]:
+        return self.get_cached_keys()
 
     def get_runs(self, limit: int = 10) -> list[dict[str, Any]]:
         with self.connection() as connection:
@@ -435,7 +520,7 @@ class CatalogDatabase:
             rows = connection.execute(
                 """
                 SELECT brand, description, supply_price, barcode, lead_time, moq,
-                       inbox, outbox, subtotal_price, image_url
+                       subtotal_price, image_url
                 FROM products ORDER BY brand, description, barcode
                 """
             )

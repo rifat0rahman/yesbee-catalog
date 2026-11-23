@@ -30,6 +30,8 @@ class ScrapeStatus:
     scraped_count: int = 0
     total_estimated: int = 0
     started_at: float | None = None
+    eta_seconds: float | None = None
+    speed_items_per_sec: float = 0.0
     recent_logs: list[dict[str, str]] = field(default_factory=list)
 
     def log(self, message: str, level: str = "info") -> None:
@@ -61,6 +63,8 @@ class ScrapeStatus:
             "total_estimated": self.total_estimated,
             "started_at": self.started_at,
             "elapsed_seconds": round(elapsed, 1),
+            "eta_seconds": self.eta_seconds if self.state in {"scraping", "running", "discovering"} else None,
+            "speed": round(self.speed_items_per_sec, 1),
             "recent_logs": self.recent_logs,
         }
 
@@ -165,6 +169,8 @@ class YesbeeScraper:
         self.status.started_at = asyncio.get_running_loop().time()
         self.status.scraped_count = 0
         self.status.total_estimated = 0
+        self.status.eta_seconds = None
+        self.status.speed_items_per_sec = 0.0
         self.status.current_brand = ""
         self.status.current_item = ""
 
@@ -300,6 +306,8 @@ class YesbeeScraper:
             raise
 
         finally:
+            self.status.eta_seconds = None
+            self.status.speed_items_per_sec = 0.0
             await self._update()
 
     async def _handle_cloudflare_if_present(self, page: Page, options: ScrapeOptions) -> None:
@@ -632,6 +640,9 @@ class YesbeeScraper:
         else:
             self.status.log("Connected to wholesale catalog stream.")
 
+        ingest_start_time = asyncio.get_running_loop().time()
+        pages_processed = 0
+
         page_idx = start_page
         while not self._stop_requested:
             if page_idx == 0:
@@ -722,6 +733,17 @@ class YesbeeScraper:
                 current_cached = self.database.stats()["cached_products"]
                 self.status.scraped_count = current_cached
                 self.database.update_run_counts(run_id, current_cached, 0)
+
+                # ETA countdown and speed calculation
+                pages_processed += 1
+                now = asyncio.get_running_loop().time()
+                time_spent = max(0.05, now - ingest_start_time)
+                avg_time_per_page = time_spent / pages_processed
+                self.status.speed_items_per_sec = (pages_processed * 100) / time_spent
+                if total_pages > 0:
+                    pages_left = max(0, total_pages - (page_idx + 1))
+                    self.status.eta_seconds = max(0.0, round(pages_left * avg_time_per_page, 1))
+
                 self.status.log(f"Catalog Ingestion: {current_cached:,} products saved (Page {page_idx + 1})...")
                 await self._update()
 
@@ -733,6 +755,8 @@ class YesbeeScraper:
             # High-throughput politeness delay (~250 items/sec)
             await asyncio.sleep(random.uniform(0.35, 0.50))
 
+        self.status.eta_seconds = None
+        self.status.speed_items_per_sec = 0.0
         db_cached = self.database.stats()["cached_products"]
         self.status.scraped_count = db_cached
         self.database.update_run_counts(run_id, db_cached, 0)

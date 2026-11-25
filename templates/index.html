@@ -44,12 +44,25 @@
         </div>
         <div>
           <div class="flex items-center gap-2">
-            <h1 class="text-lg font-bold text-slate-100 tracking-tight">Yesbee Wholesale Exporter</h1>
-            <span class="rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 text-xs font-semibold">v2.0</span>
+            <h1 class="text-lg font-bold text-slate-100 tracking-tight">Wholesale Catalog Exporter</h1>
+            <span class="rounded-full bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2 py-0.5 text-xs font-semibold">v2.1</span>
           </div>
-          <p class="text-xs text-slate-400">High-Speed Wholesale Catalog Scraper & Excel CSV Exporter</p>
+          <p class="text-xs text-slate-400">Yesbee Wholesale & Faire B2B Marketplace Scraper</p>
         </div>
       </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex items-center gap-1 bg-slate-950/90 p-1 rounded-xl border border-slate-800 shadow-inner">
+        <button id="tab-btn-yesbee" onclick="switchCatalogTab('yesbee')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950 shadow transition">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+          <span>Yesbee</span>
+        </button>
+        <button id="tab-btn-faire" onclick="switchCatalogTab('faire')" class="flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition">
+          <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/></svg>
+          <span>Faire B2B</span>
+          <span class="rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-1.5 py-0.2 text-[10px] font-bold">NEW</span>
+        </button>
+      </nav>
 
       <div class="flex items-center gap-2.5">
         <button id="view-runs-btn" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-700 bg-slate-800/80 px-3 py-1.5 text-xs font-medium text-slate-300 hover:bg-slate-700 hover:text-white transition">
@@ -69,6 +82,11 @@
 
   <!-- Main Container -->
   <main class="flex-1 mx-auto max-w-7xl w-full px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+    <!-- ============================================== -->
+    <!-- YESBEE WHOLESALE TAB CONTENT                   -->
+    <!-- ============================================== -->
+    <div id="yesbee-tab-content" class="space-y-6">
 
     <!-- KPI Metric Cards -->
     <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -326,6 +344,7 @@
             <option value="25" selected>25 per page</option>
             <option value="50">50 per page</option>
             <option value="100">100 per page</option>
+            <option value="150">150 per page</option>
           </select>
         </div>
 
@@ -360,6 +379,327 @@
         <div class="text-slate-500">// Ready. Logs and engine activity will appear here in real time.</div>
       </div>
     </section>
+
+    </div> <!-- End Yesbee Tab Content -->
+
+    <!-- ============================================== -->
+    <!-- FAIRE B2B WHOLESALE TAB CONTENT                -->
+    <!-- ============================================== -->
+    <div id="faire-tab-content" class="hidden space-y-6">
+
+      <!-- Faire KPI Metric Cards -->
+      <div class="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span>Faire Products</span>
+            <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="faire-stat-cached" class="text-2xl font-bold text-white tracking-tight">0</span>
+            <span class="text-xs text-slate-500">items</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span>Faire Brands</span>
+            <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z"/></svg>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="faire-stat-brands" class="text-2xl font-bold text-white tracking-tight">0</span>
+            <span class="text-xs text-slate-500">brands</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span>UPCs / Barcodes</span>
+            <svg class="w-4 h-4 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v1m6 11h2m-6 0h-2v4m0-11v3m0 0h.01M12 12h4.01M16 20h4M4 12h4m12 0h.01M5 8h2a1 1 0 001-1V5a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1zm12 0h2a1 1 0 001-1V5a1 1 0 00-1-1h-2a1 1 0 00-1 1v2a1 1 0 001 1zM5 20h2a1 1 0 001-1v-2a1 1 0 00-1-1H5a1 1 0 00-1 1v2a1 1 0 001 1z"/></svg>
+          </div>
+          <div class="flex items-baseline gap-2">
+            <span id="faire-stat-upc" class="text-2xl font-bold text-white tracking-tight">0</span>
+            <span class="text-xs text-slate-500">identified</span>
+          </div>
+        </div>
+
+        <div class="rounded-2xl border border-slate-800 bg-slate-900/70 p-4 shadow-sm flex flex-col justify-between">
+          <div class="flex items-center justify-between text-xs text-slate-400 mb-1">
+            <span>Faire Status</span>
+            <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          </div>
+          <div class="flex items-center gap-2 flex-wrap">
+            <span id="faire-stat-badge" class="inline-flex items-center gap-1.5 rounded-full bg-slate-800 px-2.5 py-0.5 text-xs font-semibold text-slate-300 capitalize">
+              <span class="h-1.5 w-1.5 rounded-full bg-slate-400"></span>
+              Idle
+            </span>
+            <span id="faire-stat-elapsed" class="text-xs text-slate-500 font-mono">0s</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Faire Control Cards: Left (Auth / Session State), Right (Targets & Scrape Engine) -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Session State & Authentication Card (5 cols) -->
+        <section class="lg:col-span-5 rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-slate-100">Faire B2B Session</h2>
+                  <p class="text-xs text-slate-400">Wholesale pricing & 2FA bypass</p>
+                </div>
+              </div>
+              <span id="faire-session-pill" class="rounded-full bg-slate-800 text-slate-400 border border-slate-700 px-2 py-0.5 text-xs font-medium">Checking...</span>
+            </div>
+
+            <div class="space-y-3">
+              <div class="rounded-xl border border-slate-800 bg-slate-950/60 p-3.5 space-y-2">
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-slate-400">Session Storage:</span>
+                  <span id="faire-session-path" class="font-mono text-slate-300 truncate max-w-[180px]">faire_storage_state.json</span>
+                </div>
+                <div class="flex items-center justify-between text-xs">
+                  <span class="text-slate-400">Last Verified:</span>
+                  <span id="faire-session-time" class="text-slate-300">Not loaded</span>
+                </div>
+                <p class="text-[11px] text-slate-400 leading-relaxed pt-1 border-t border-slate-800/80">
+                  Faire displays wholesale costs to logged-in retail accounts. You can run scrapes with your existing session, refresh it with 1-click interactive login, or import cookies JSON.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="pt-4 flex flex-wrap gap-2">
+            <button id="faire-login-window-btn" class="flex-1 inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-700 px-3.5 py-2 text-xs font-semibold text-slate-200 transition">
+              <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg>
+              Login / Verify Session
+            </button>
+            <button id="faire-import-session-btn" class="inline-flex items-center justify-center gap-1.5 rounded-xl bg-slate-950 hover:bg-slate-800 border border-slate-800 px-3 py-2 text-xs font-medium text-slate-300 transition">
+              <svg class="w-3.5 h-3.5 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+              Import JSON
+            </button>
+          </div>
+        </section>
+
+        <!-- Scraper Configuration & Action Engine (7 cols) -->
+        <section class="lg:col-span-7 rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl flex flex-col justify-between">
+          <div>
+            <div class="flex items-center justify-between mb-4">
+              <div class="flex items-center gap-2">
+                <div class="h-8 w-8 rounded-lg bg-indigo-500/10 text-indigo-400 border border-indigo-500/20 flex items-center justify-center">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+                </div>
+                <div>
+                  <h2 class="text-sm font-semibold text-slate-100">Faire Scraper Target & Mode</h2>
+                  <p class="text-xs text-slate-400">Scrape by Brand URL, Bulk List, or Category</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="space-y-3.5">
+              <div>
+                <label for="faire-targets-input" class="block text-xs font-medium text-slate-300 mb-1">
+                  Target URLs (one per line, e.g. Brand URL or Category URL)
+                </label>
+                <textarea id="faire-targets-input" rows="3" placeholder="https://www.faire.com/brand/b_56wn63pr" class="w-full font-mono rounded-xl border border-slate-700/80 bg-slate-800/80 px-3.5 py-2 text-xs text-slate-100 placeholder-slate-500 outline-none transition focus:border-emerald-400 focus:ring-1 focus:ring-emerald-400">https://www.faire.com/brand/b_56wn63pr</textarea>
+                <p class="text-[11px] text-slate-400 mt-1">Default pre-filled with client's target: <strong>Glowiss</strong> (`b_56wn63pr`).</p>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3">
+                <div>
+                  <label for="faire-mode-select" class="block text-xs font-medium text-slate-300 mb-1">Scrape Mode</label>
+                  <select id="faire-mode-select" class="w-full rounded-xl border border-slate-700/80 bg-slate-800/80 px-3 py-2 text-xs text-slate-200 outline-none focus:border-emerald-400">
+                    <option value="brand">Brand Scrape (Single / Multiple)</option>
+                    <option value="category">Category Explorer (Harvest Brands)</option>
+                  </select>
+                </div>
+
+                <div class="flex flex-col justify-end pt-2">
+                  <label class="inline-flex items-center gap-2 cursor-pointer text-xs text-slate-300">
+                    <input id="faire-headless-chk" type="checkbox" class="h-4 w-4 rounded border-slate-700 text-emerald-500 bg-slate-800 focus:ring-emerald-400">
+                    <span>Headless Mode (Silent)</span>
+                  </label>
+                  <p class="text-[10px] text-slate-400 mt-0.5">Leave unchecked to allow Cloudflare verification.</p>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Buttons -->
+          <div class="pt-5 flex flex-wrap items-center gap-3">
+            <button id="faire-start-btn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-gradient-to-r from-emerald-500 to-teal-600 px-4 py-2.5 text-xs font-bold text-slate-950 shadow-lg shadow-emerald-500/20 hover:from-emerald-400 hover:to-teal-500 transition active:scale-[0.98]">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span>Start Full Scrape</span>
+            </button>
+
+            <button id="faire-resume-btn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-semibold px-4 py-2.5 text-xs transition shadow-md shadow-indigo-600/20 disabled:opacity-50">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+              <span>Resume Scrape</span>
+            </button>
+
+            <button id="faire-enrich-all-btn" class="inline-flex items-center justify-center gap-2 rounded-xl bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 font-semibold px-4 py-2.5 text-xs transition shadow-md shadow-amber-500/10 active:scale-[0.98]" title="Enrich all unenriched products with variants, SKUs and barcodes">
+              <svg class="w-4 h-4 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              <span>Enrich All Rows</span>
+            </button>
+
+            <button id="faire-stop-btn" disabled class="hidden inline-flex items-center justify-center gap-1.5 rounded-xl border border-rose-500/30 bg-rose-500/10 px-4 py-2.5 text-xs font-semibold text-rose-400 hover:bg-rose-500/20 transition disabled:opacity-40">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 10a1 1 0 011-1h4a1 1 0 011 1v4a1 1 0 01-1 1h-4a1 1 0 01-1-1v-4z"/></svg>
+              <span>Stop</span>
+            </button>
+
+            <button id="faire-export-btn" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-emerald-500/30 bg-emerald-500/10 px-4 py-2.5 text-xs font-semibold text-emerald-400 hover:bg-emerald-500/20 transition">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+              <span>Export CSV / Excel</span>
+            </button>
+
+            <button id="faire-clear-btn" class="inline-flex items-center justify-center gap-1.5 rounded-xl border border-slate-700 bg-slate-800 px-3 py-2.5 text-xs font-medium text-slate-300 hover:bg-rose-500/10 hover:text-rose-400 hover:border-rose-500/30 transition">
+              <svg class="w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+              <span>Clear</span>
+            </button>
+          </div>
+        </section>
+      </div>
+
+      <!-- Rate Limit Alert Banner -->
+      <div id="faire-rate-limit-banner" class="hidden rounded-2xl border border-amber-500/40 bg-amber-500/10 p-4 flex items-center justify-between text-xs text-amber-200 shadow-lg">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-amber-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+          <div>
+            <p class="font-bold text-amber-300">⏸ Faire Rate Limit — Auto-Healing in Progress</p>
+            <p class="text-amber-200/80 mt-0.5">Faire temporarily blocked product requests (HTTP 429). The scraper is <strong>cooling down automatically for 4–8 minutes</strong> and will resume on its own — no action needed. Watch the console for the countdown.</p>
+          </div>
+        </div>
+        <button onclick="document.getElementById('faire-rate-limit-banner').classList.add('hidden')" class="text-amber-400 hover:text-white font-bold px-2 py-1">&times;</button>
+      </div>
+
+      <!-- Cooldown Status Bar (shown during rate-limit countdown) -->
+      <div id="faire-cooldown-bar" class="hidden rounded-2xl border border-amber-500/50 bg-amber-950/50 px-5 py-3.5 flex items-center justify-between gap-4 text-xs text-amber-200 shadow-lg">
+        <div class="flex items-center gap-3">
+          <svg class="w-5 h-5 text-amber-400 flex-shrink-0 animate-spin" style="animation-duration: 6s;" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <div>
+            <span class="font-bold text-amber-300">Auto-Healing Cooldown:</span>
+            <span id="faire-cooldown-text" class="text-amber-200 ml-1">Cooling down — scraper will resume automatically</span>
+          </div>
+        </div>
+        <div class="flex items-center gap-2 rounded-xl border border-amber-500/40 bg-amber-500/15 px-3 py-1.5 font-mono text-sm font-bold text-amber-300 flex-shrink-0">
+          <span class="text-[10px] uppercase tracking-wider text-amber-400/80 font-sans">Resumes in</span>
+          <span id="faire-cooldown-timer">00:00</span>
+        </div>
+      </div>
+
+      <!-- Faire Products Catalog Table -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-900/80 shadow-xl overflow-hidden">
+        <div class="p-5 border-b border-slate-800/80 flex flex-wrap items-center justify-between gap-4">
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="text-sm font-semibold text-slate-100">Faire Scraped Products Catalog</h2>
+              <span id="faire-table-count-badge" class="rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-xs font-semibold">0 items</span>
+              <span id="faire-unenriched-badge" class="hidden rounded-full bg-amber-500/10 text-amber-300 border border-amber-500/20 px-2 py-0.5 text-xs font-semibold">0 unenriched</span>
+            </div>
+            <p class="text-xs text-slate-400">Wholesale cost, retail MSRP, UPC barcodes, case quantities, and variant details</p>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-2.5">
+            <!-- Dedicated Batch Enrich Control -->
+            <div class="flex items-center rounded-xl border border-amber-500/30 bg-amber-500/10 overflow-hidden shadow-sm">
+              <select id="faire-enrich-batch-size" class="bg-transparent pl-2.5 pr-1 py-1.5 text-xs font-medium text-amber-200 outline-none cursor-pointer" title="Number of unenriched products to enrich in one batch">
+                <option value="10" class="bg-slate-900 text-slate-200">Batch: 10</option>
+                <option value="20" selected class="bg-slate-900 text-slate-200">Batch: 20</option>
+                <option value="30" class="bg-slate-900 text-slate-200">Batch: 30</option>
+                <option value="50" class="bg-slate-900 text-slate-200">Batch: 50</option>
+                <option value="0" class="bg-slate-900 text-slate-200">Batch: All</option>
+              </select>
+              <button id="faire-enrich-batch-btn" class="inline-flex items-center gap-1.5 bg-amber-500/20 hover:bg-amber-500/30 border-l border-amber-500/30 px-3 py-1.5 text-xs font-bold text-amber-300 transition active:scale-[0.98] disabled:opacity-50" title="Enrich the next batch of unenriched products">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Enrich Batch</span>
+              </button>
+            </div>
+
+            <div class="relative w-48 sm:w-56">
+              <input id="faire-search-input" type="text" placeholder="Search by title, UPC, SKU..." class="w-full rounded-xl border border-slate-700 bg-slate-800/80 pl-8 pr-3 py-1.5 text-xs text-slate-200 placeholder-slate-500 outline-none focus:border-emerald-400">
+              <svg class="w-3.5 h-3.5 text-slate-500 absolute left-2.5 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+            </div>
+
+            <select id="faire-brand-filter" class="rounded-xl border border-slate-700 bg-slate-800/80 px-2.5 py-1.5 text-xs text-slate-200 outline-none focus:border-emerald-400 max-w-[160px]">
+              <option value="">All Brands</option>
+            </select>
+
+            <button id="faire-refresh-table-btn" class="rounded-xl border border-slate-700 bg-slate-800 p-2 text-slate-300 hover:text-white transition">
+              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <div class="overflow-x-auto">
+          <table class="w-full text-left text-xs">
+            <thead class="bg-slate-950/60 border-b border-slate-800 text-slate-400 font-medium uppercase tracking-wider text-[11px]">
+              <tr>
+                <th class="py-3 px-3">Image</th>
+                <th class="py-3 px-3">Brand</th>
+                <th class="py-3 px-3">Product Title</th>
+                <th class="py-3 px-3">Variant / Option</th>
+                <th class="py-3 px-3">SKU</th>
+                <th class="py-3 px-3">UPC</th>
+                <th class="py-3 px-3">EAN</th>
+                <th class="py-3 px-3">Cost</th>
+                <th class="py-3 px-3">Retail</th>
+                <th class="py-3 px-3">MOQ</th>
+                <th class="py-3 px-3">Link</th>
+                <th class="py-3 px-3 text-right">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="faire-products-tbody" class="divide-y divide-slate-800/60 text-slate-300">
+              <tr>
+                <td colspan="12" class="px-4 py-12 text-center text-slate-500">No Faire products scraped yet. Click "Start Full Scrape" above to begin.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="p-3.5 border-t border-slate-800 flex flex-wrap items-center justify-between gap-3 text-xs text-slate-400">
+          <div class="flex items-center gap-2.5">
+            <span id="faire-pagination-info">Showing 0 of 0 products</span>
+            <select id="faire-page-size-select" class="rounded-lg border border-slate-700 bg-slate-800 px-2.5 py-1 text-xs text-slate-200 outline-none focus:border-emerald-400 cursor-pointer" title="Products per page">
+              <option value="25" selected>25 per page</option>
+              <option value="50">50 per page</option>
+              <option value="100">100 per page</option>
+              <option value="150">150 per page</option>
+            </select>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="faire-prev-page-btn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-slate-300 hover:text-white disabled:opacity-40">Previous</button>
+            <span id="faire-page-indicator" class="font-mono text-slate-200">1</span>
+            <button id="faire-next-page-btn" class="rounded-lg border border-slate-700 bg-slate-800 px-3 py-1 text-slate-300 hover:text-white disabled:opacity-40">Next</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Live Terminal / Logs Section for Faire (Placed after Products Catalog) -->
+      <section class="rounded-2xl border border-slate-800 bg-slate-900/80 p-5 shadow-xl space-y-3">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="relative flex h-2 w-2">
+              <span id="faire-log-ping" class="hidden animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+              <span class="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+            </span>
+            <h2 class="text-xs font-semibold uppercase tracking-wider text-slate-300">Faire Scraper Console & Network Activity</h2>
+          </div>
+          <div class="flex items-center gap-2">
+            <button id="faire-clear-logs-btn" class="rounded-lg border border-slate-800 bg-slate-950 px-2.5 py-1 text-xs text-slate-400 hover:text-slate-200 transition">Clear</button>
+          </div>
+        </div>
+
+        <div id="faire-logs-terminal" class="h-48 overflow-y-auto rounded-xl border border-slate-950 bg-black/80 p-3.5 font-mono text-xs leading-relaxed space-y-1">
+          <div class="text-slate-500">// Ready. Faire scraping activity and intercepted product batches will stream here.</div>
+        </div>
+      </section>
+
+    </div> <!-- End Faire Tab Content -->
 
   </main>
 
@@ -412,6 +752,49 @@
       <button class="absolute -top-3 -right-3 h-8 w-8 rounded-full bg-slate-800 border border-slate-600 text-white flex items-center justify-center" onclick="document.getElementById('img-modal').classList.add('hidden')">&times;</button>
       <img id="modal-img" src="" alt="Product Preview" class="max-h-[80vh] w-auto mx-auto rounded-xl object-contain">
       <p id="modal-img-caption" class="text-xs text-center text-slate-300 mt-2 truncate max-w-md mx-auto"></p>
+    </div>
+  </div>
+
+  <!-- Faire Session Import Modal -->
+  <div id="faire-import-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-lg rounded-2xl border border-slate-800 bg-slate-900 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <div class="flex items-center gap-2">
+          <div class="h-8 w-8 rounded-lg bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"/></svg>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white">Import Faire Session JSON</h3>
+            <p class="text-xs text-slate-400">Paste your exported Playwright/cookie JSON</p>
+          </div>
+        </div>
+        <button id="close-faire-import-btn" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <div>
+        <label for="faire-session-json-input" class="block text-xs font-medium text-slate-300 mb-1">Session / Cookies JSON</label>
+        <textarea id="faire-session-json-input" rows="8" placeholder='{"cookies": [...], "origins": [...]}' class="w-full font-mono text-[11px] rounded-xl border border-slate-700 bg-slate-800/80 p-3 text-slate-200 placeholder-slate-500 outline-none focus:border-emerald-400"></textarea>
+      </div>
+      <div class="flex justify-end gap-2.5 pt-2 border-t border-slate-800">
+        <button id="cancel-faire-import-btn" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700">Cancel</button>
+        <button id="confirm-faire-import-btn" class="rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold px-4 py-2 text-xs shadow-lg shadow-emerald-500/20">Save & Apply Session</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Faire Clear Confirmation Modal -->
+  <div id="faire-confirm-clear-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="w-full max-w-md rounded-2xl border border-rose-500/30 bg-slate-900 p-6 shadow-2xl space-y-4">
+      <div class="flex items-center gap-3 text-rose-400">
+        <div class="h-10 w-10 rounded-full bg-rose-500/10 flex items-center justify-center">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+        </div>
+        <h3 class="text-base font-bold text-white">Clear Faire Products?</h3>
+      </div>
+      <p class="text-xs text-slate-300">This will remove all products from the local Faire catalog database. Export a CSV first if you want to keep a backup.</p>
+      <div class="flex justify-end gap-2.5 pt-2">
+        <button id="cancel-faire-clear-btn" class="rounded-xl border border-slate-700 bg-slate-800 px-4 py-2 text-xs font-medium text-slate-300 hover:bg-slate-700">Cancel</button>
+        <button id="confirm-faire-clear-btn" class="rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold px-4 py-2 text-xs">Yes, Clear Database</button>
+      </div>
     </div>
   </div>
 
@@ -973,6 +1356,466 @@
       if (isScraping && currentPage === 1 && document.activeElement !== $('search-input') && !isRefreshingTable) {
         isRefreshingTable = true;
         loadProducts().finally(() => { isRefreshingTable = false; });
+      }
+    }, 2500);
+
+    // ==========================================
+    // FAIRE B2B WHOLESALE SCRAPER CONTROLLER
+    // ==========================================
+    let currentCatalogTab = 'yesbee';
+    let faireCurrentPage = 1;
+    let fairePageSize = 25;
+    let faireSearchQuery = '';
+    let faireSelectedBrand = '';
+    let isFaireScraping = false;
+    let faireSearchDebounce = null;
+    let faireElapsed = 0;
+    let faireLastScrapedCount = -1;
+    let faireLastWithUpcCount = -1;
+    let isFaireRefreshingTable = false;
+    let faireCooldownRemaining = 0;
+
+    function formatCooldownTimer(sec) {
+      const s = Math.max(0, Math.floor(sec || 0));
+      const m = Math.floor(s / 60);
+      const rem = s % 60;
+      return `${String(m).padStart(2, '0')}:${String(rem).padStart(2, '0')}`;
+    }
+
+    function renderFaireCooldownUI() {
+      const bar = $('faire-cooldown-bar');
+      const timerEl = $('faire-cooldown-timer');
+      if (!bar) return;
+      if (isFaireScraping && faireCooldownRemaining > 0) {
+        bar.classList.remove('hidden');
+        if (timerEl) timerEl.textContent = formatCooldownTimer(faireCooldownRemaining);
+      } else {
+        bar.classList.add('hidden');
+      }
+    }
+
+    window.switchCatalogTab = (tab) => {
+      currentCatalogTab = tab;
+      const btnYesbee = $('tab-btn-yesbee');
+      const btnFaire = $('tab-btn-faire');
+      const contentYesbee = $('yesbee-tab-content');
+      const contentFaire = $('faire-tab-content');
+
+      if (tab === 'yesbee') {
+        btnYesbee.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-cyan-500 text-slate-950 shadow transition';
+        btnFaire.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+        contentYesbee.classList.remove('hidden');
+        contentFaire.classList.add('hidden');
+      } else {
+        btnFaire.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-bold bg-emerald-500 text-slate-950 shadow transition';
+        btnYesbee.className = 'flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg text-xs font-semibold text-slate-400 hover:text-white transition';
+        contentFaire.classList.remove('hidden');
+        contentYesbee.classList.add('hidden');
+        // Initial load for Faire tab
+        refreshFaireStatus();
+        loadFaireProducts();
+        loadFaireBrands();
+      }
+    };
+
+    async function refreshFaireStatus() {
+      try {
+        const session = await api('/api/faire/session/status');
+        if (session.has_session) {
+          $('faire-session-pill').className = 'rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 text-xs font-medium';
+          $('faire-session-pill').textContent = 'Session Active (Logged In)';
+          $('faire-session-time').textContent = session.last_modified || 'Active';
+        } else {
+          $('faire-session-pill').className = 'rounded-full bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2 py-0.5 text-xs font-medium';
+          $('faire-session-pill').textContent = 'Public Session (No Login)';
+          $('faire-session-time').textContent = 'Not saved';
+        }
+
+        $('faire-stat-cached').textContent = (session.faire_cached_products || 0).toLocaleString();
+        $('faire-stat-brands').textContent = (session.faire_total_brands || 0).toLocaleString();
+        $('faire-stat-upc').textContent = (session.faire_with_upc || 0).toLocaleString();
+        $('faire-table-count-badge').textContent = `${(session.faire_cached_products || 0).toLocaleString()} items`;
+
+        const unenrichedCount = session.faire_unenriched || 0;
+        const unenrichedBadge = $('faire-unenriched-badge');
+        if (unenrichedBadge) {
+          if (unenrichedCount > 0) {
+            unenrichedBadge.textContent = `${unenrichedCount.toLocaleString()} unenriched`;
+            unenrichedBadge.classList.remove('hidden');
+          } else {
+            unenrichedBadge.classList.add('hidden');
+          }
+        }
+
+        // Check Scrape Status
+        const st = await api('/api/faire/scrape/status');
+        const stateColors = {
+          idle: 'bg-slate-800 text-slate-300',
+          scraping: 'bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 animate-pulse',
+          stopping: 'bg-amber-500/20 text-amber-300 border border-amber-500/30',
+          completed: 'bg-indigo-500/20 text-indigo-300 border border-indigo-500/30',
+          error: 'bg-rose-500/20 text-rose-300 border border-rose-500/30'
+        };
+        $('faire-stat-badge').className = `inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-xs font-semibold capitalize ${stateColors[st.state] || stateColors.idle}`;
+        $('faire-stat-badge').innerHTML = `<span class="h-1.5 w-1.5 rounded-full ${st.state === 'scraping' ? 'bg-emerald-400 animate-ping' : 'bg-slate-400'}"></span>${st.state}`;
+        $('faire-stat-elapsed').textContent = formatDuration(st.elapsed_seconds || 0);
+
+        isFaireScraping = (st.state === 'scraping' || st.state === 'stopping');
+        if (isFaireScraping) {
+          $('faire-start-btn').classList.add('hidden');
+          $('faire-resume-btn').classList.add('hidden');
+          $('faire-enrich-all-btn').classList.add('hidden');
+          if ($('faire-enrich-batch-btn')) $('faire-enrich-batch-btn').disabled = true;
+          $('faire-stop-btn').classList.remove('hidden');
+          $('faire-stop-btn').disabled = (st.state === 'stopping');
+          $('faire-log-ping').classList.remove('hidden');
+        } else {
+          $('faire-start-btn').classList.remove('hidden');
+          $('faire-resume-btn').classList.remove('hidden');
+          $('faire-enrich-all-btn').classList.remove('hidden');
+          if ($('faire-enrich-batch-btn')) $('faire-enrich-batch-btn').disabled = false;
+          $('faire-stop-btn').classList.add('hidden');
+          $('faire-log-ping').classList.add('hidden');
+        }
+
+        // Render Faire logs & detect rate limit warnings / cooldown timer
+        const cooldownSecs = Number(st.cooldown_seconds || 0);
+        if (isFaireScraping && cooldownSecs > 0) {
+          faireCooldownRemaining = cooldownSecs;
+          if ($('faire-cooldown-text') && st.current_item && st.current_item.startsWith('⏸')) {
+            $('faire-cooldown-text').textContent = st.current_item.replace(/^⏸\s*/, '');
+          }
+        } else {
+          faireCooldownRemaining = 0;
+        }
+        renderFaireCooldownUI();
+
+        if (st.recent_logs && st.recent_logs.length) {
+          const hasRateLimit = st.recent_logs.some(l => l.message && (l.message.includes('429') || l.message.toLowerCase().includes('rate limit')));
+          const banner = $('faire-rate-limit-banner');
+          if (banner && hasRateLimit) {
+            banner.classList.remove('hidden');
+          }
+          const logHtml = st.recent_logs.map(log => {
+            const isCooldownLog = log.message && log.message.startsWith('⏸');
+            const color = log.level === 'error' ? 'text-rose-400' : isCooldownLog ? 'text-amber-300 font-semibold' : log.level === 'warn' ? 'text-amber-400' : 'text-slate-300';
+            return `<div class="font-mono text-xs"><span class="text-slate-500">[${escapeHtml(log.time)}]</span> <span class="${color}">${escapeHtml(log.message)}</span></div>`;
+          }).join('');
+          $('faire-logs-terminal').innerHTML = logHtml;
+          $('faire-logs-terminal').scrollTop = $('faire-logs-terminal').scrollHeight;
+        }
+
+        // If products count or enriched barcode count changed, reload table immediately
+        const countChanged = (session.faire_cached_products !== faireLastScrapedCount) || (session.faire_with_upc !== faireLastWithUpcCount);
+        if (countChanged) {
+          faireLastScrapedCount = session.faire_cached_products;
+          faireLastWithUpcCount = session.faire_with_upc;
+          if (currentCatalogTab === 'faire' && faireCurrentPage === 1 && document.activeElement !== $('faire-search-input') && !isFaireRefreshingTable) {
+            isFaireRefreshingTable = true;
+            loadFaireProducts().finally(() => { isFaireRefreshingTable = false; });
+            loadFaireBrands();
+          }
+        }
+      } catch (e) {}
+    }
+
+    async function loadFaireProducts() {
+      try {
+        const params = new URLSearchParams({
+          page: faireCurrentPage,
+          page_size: fairePageSize,
+          q: faireSearchQuery,
+          brand: faireSelectedBrand
+        });
+        const data = await api(`/api/faire/products?${params}`);
+        const tbody = $('faire-products-tbody');
+
+        if (!data.items || !data.items.length) {
+          tbody.innerHTML = `<tr><td colspan="11" class="px-4 py-12 text-center text-slate-500">No Faire products found.</td></tr>`;
+          $('faire-pagination-info').textContent = 'Showing 0 of 0 products';
+          return;
+        }
+
+        tbody.innerHTML = data.items.map(p => {
+          const imgHtml = p.image_url
+            ? `<img src="${escapeHtml(p.image_url)}" class="h-9 w-9 rounded-lg object-contain bg-slate-950 p-1 border border-slate-800 cursor-pointer hover:scale-110 transition" onclick="previewImage('${escapeHtml(p.image_url)}', '${escapeHtml(p.product_title)}')">`
+            : `<div class="h-9 w-9 rounded-lg bg-slate-800 border border-slate-700/60 flex items-center justify-center text-[10px] text-slate-500">No img</div>`;
+
+          const variantHtml = p.variant_name
+            ? `<span class="inline-flex items-center px-2 py-0.5 rounded-md text-[11px] font-medium bg-indigo-500/10 text-indigo-300 border border-indigo-500/20">${escapeHtml(p.variant_name)}</span>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const skuHtml = p.sku
+            ? `<button class="font-mono text-slate-300 hover:text-white flex items-center gap-1" onclick="copyText('${escapeHtml(p.sku)}')">${escapeHtml(p.sku)} <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const upcVal = p.upc || (p.barcode && p.barcode.length === 12 ? p.barcode : '');
+          const upcHtml = upcVal
+            ? `<button class="font-mono text-cyan-400 hover:text-cyan-300 flex items-center gap-1" onclick="copyText('${escapeHtml(upcVal)}')">${escapeHtml(upcVal)} <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const eanVal = p.ean || (p.barcode && p.barcode.length !== 12 ? p.barcode : '');
+          const eanHtml = eanVal
+            ? `<button class="font-mono text-emerald-400 hover:text-emerald-300 flex items-center gap-1" onclick="copyText('${escapeHtml(eanVal)}')">${escapeHtml(eanVal)} <svg class="w-2.5 h-2.5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z"/></svg></button>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const wholesaleHtml = p.wholesale_price
+            ? `<span class="font-semibold text-emerald-400">$${escapeHtml(p.wholesale_price)}</span>`
+            : `<span class="text-slate-500">Sign in</span>`;
+
+          const retailHtml = p.retail_price
+            ? `<span class="text-slate-400">$${escapeHtml(p.retail_price)}</span>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const linkHtml = p.product_url
+            ? `<a href="${escapeHtml(p.product_url)}" target="_blank" rel="noopener" class="text-indigo-400 hover:text-indigo-300 inline-flex items-center gap-1">View <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14"/></svg></a>`
+            : `<span class="text-slate-600">-</span>`;
+
+          const actionHtml = p.enriched
+            ? `<button onclick="enrichSingleProduct('${escapeHtml(p.product_id)}', this)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 text-emerald-300 text-[11px] font-semibold transition active:scale-95 shadow-sm" title="Already enriched - click to re-enrich">
+                <svg class="w-3 h-3 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg>
+                <span>Re-enrich</span>
+              </button>`
+            : `<button onclick="enrichSingleProduct('${escapeHtml(p.product_id)}', this)" class="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-300 text-[11px] font-semibold transition active:scale-95 shadow-sm" title="Enrich variants, SKUs and barcodes for this product">
+                <svg class="w-3 h-3 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                <span>Enrich</span>
+              </button>`;
+
+          return `
+            <tr class="hover:bg-slate-800/40 transition">
+              <td class="py-2.5 px-3">${imgHtml}</td>
+              <td class="py-2.5 px-3 font-semibold text-slate-200">${escapeHtml(p.brand_name || 'N/A')}</td>
+              <td class="py-2.5 px-3 max-w-xs truncate text-slate-100" title="${escapeHtml(p.product_title)}">${escapeHtml(p.product_title)}</td>
+              <td class="py-2.5 px-3">${variantHtml}</td>
+              <td class="py-2.5 px-3">${skuHtml}</td>
+              <td class="py-2.5 px-3">${upcHtml}</td>
+              <td class="py-2.5 px-3">${eanHtml}</td>
+              <td class="py-2.5 px-3">${wholesaleHtml}</td>
+              <td class="py-2.5 px-3">${retailHtml}</td>
+              <td class="py-2.5 px-3 text-slate-400">${escapeHtml(p.moq || '1')}</td>
+              <td class="py-2.5 px-3">${linkHtml}</td>
+              <td class="py-2.5 px-3 text-right whitespace-nowrap">${actionHtml}</td>
+            </tr>
+          `;
+        }).join('');
+
+        const startIdx = (data.page - 1) * data.page_size + 1;
+        const endIdx = Math.min(data.page * data.page_size, data.total);
+        $('faire-pagination-info').textContent = `Showing ${startIdx}–${endIdx} of ${data.total} products`;
+        $('faire-page-indicator').textContent = `${data.page} / ${data.total_pages}`;
+        $('faire-prev-page-btn').disabled = (data.page <= 1);
+        $('faire-next-page-btn').disabled = (data.page >= data.total_pages);
+
+      } catch (err) {
+        $('faire-products-tbody').innerHTML = `<tr><td colspan="12" class="px-4 py-8 text-center text-rose-400">Failed to load Faire catalog: ${err.message}</td></tr>`;
+      }
+    }
+
+    async function enrichSingleProduct(productId, btn) {
+      if (!productId) return;
+      const originalHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.innerHTML = `<svg class="w-3 h-3 animate-spin text-amber-400 inline" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4" fill="none"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path></svg> <span class="text-[10px]">Enriching...</span>`;
+
+      try {
+        const res = await api('/api/faire/products/enrich', {
+          method: 'POST',
+          body: JSON.stringify({ product_id: productId })
+        });
+        showToast(res.message || 'Row enriched successfully!', 'success');
+        await loadFaireProducts();
+      } catch (err) {
+        if (err.message && (err.message.includes('429') || err.message.toLowerCase().includes('rate limit'))) {
+          showToast('⚠️ Rate limit reached (Too many requests). Please wait 1 minute before retrying.', 'warn');
+          const banner = $('faire-rate-limit-banner');
+          if (banner) banner.classList.remove('hidden');
+        } else {
+          showToast(err.message, 'error');
+        }
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = originalHtml;
+      }
+    }
+
+    async function loadFaireBrands() {
+      try {
+        const brands = await api('/api/faire/brands');
+        const select = $('faire-brand-filter');
+        const current = select.value;
+        select.innerHTML = '<option value="">All Brands</option>' + brands.map(b => `
+          <option value="${escapeHtml(b)}" ${b === current ? 'selected' : ''}>${escapeHtml(b)}</option>
+        `).join('');
+      } catch (e) {}
+    }
+
+    // Faire Event Listeners
+    async function startFaireScrape(scrapeMode = 'fresh', batchLimit = 0) {
+      const rawTargets = $('faire-targets-input').value.split('\n').map(s => s.trim()).filter(Boolean);
+      if (!rawTargets.length && scrapeMode !== 'enrich_all') {
+        showToast('Please enter at least one Faire Brand or Category URL.', 'warn');
+        return;
+      }
+      const mode = $('faire-mode-select').value;
+      const headless = $('faire-headless-chk').checked;
+
+      try {
+        const res = await api('/api/faire/scrape/start', {
+          method: 'POST',
+          body: JSON.stringify({ targets: rawTargets, mode, scrape_mode: scrapeMode, headless, batch_limit: batchLimit })
+        });
+        showToast(res.message, 'success');
+        refreshFaireStatus();
+      } catch (err) {
+        if (err.message && (err.message.includes('429') || err.message.toLowerCase().includes('rate limit'))) {
+          showToast('⚠️ Rate limit reached (Too many requests). Please wait 1 minute before retrying.', 'warn');
+          const banner = $('faire-rate-limit-banner');
+          if (banner) banner.classList.remove('hidden');
+        } else {
+          showToast(err.message, 'error');
+        }
+      }
+    }
+
+    $('faire-start-btn').onclick = () => startFaireScrape('fresh', 0);
+    $('faire-resume-btn').onclick = () => startFaireScrape('resume', 0);
+    $('faire-enrich-all-btn').onclick = () => startFaireScrape('enrich_all', 0);
+    $('faire-enrich-batch-btn').onclick = () => {
+      const limit = parseInt($('faire-enrich-batch-size').value, 10) || 0;
+      startFaireScrape('enrich_all', limit);
+    };
+
+    $('faire-stop-btn').onclick = async () => {
+      try {
+        const res = await api('/api/faire/scrape/stop', { method: 'POST' });
+        showToast(res.message, 'warn');
+        refreshFaireStatus();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    $('faire-export-btn').onclick = () => {
+      window.location.href = '/api/faire/export';
+    };
+
+    // Faire Interactive Login Window
+    $('faire-login-window-btn').onclick = async () => {
+      showToast('Opening browser window to login to Faire. Please log in and complete 2FA in the opened window...', 'info');
+      try {
+        const res = await api('/api/faire/session/login', { method: 'POST' });
+        showToast(res.message, 'success');
+        refreshFaireStatus();
+      } catch (err) {
+        showToast(`Login failed: ${err.message}`, 'error');
+      }
+    };
+
+    // Faire Session Import Modal
+    $('faire-import-session-btn').onclick = () => {
+      $('faire-session-json-input').value = '';
+      $('faire-import-modal').classList.remove('hidden');
+    };
+    $('close-faire-import-btn').onclick = () => $('faire-import-modal').classList.add('hidden');
+    $('cancel-faire-import-btn').onclick = () => $('faire-import-modal').classList.add('hidden');
+    $('confirm-faire-import-btn').onclick = async () => {
+      const raw = $('faire-session-json-input').value.trim();
+      if (!raw) {
+        showToast('Please paste valid JSON session data.', 'warn');
+        return;
+      }
+      try {
+        const res = await api('/api/faire/session/import', {
+          method: 'POST',
+          body: JSON.stringify({ storage_state_json: raw })
+        });
+        showToast(res.message, 'success');
+        $('faire-import-modal').classList.add('hidden');
+        refreshFaireStatus();
+      } catch (err) {
+        showToast(`Import error: ${err.message}`, 'error');
+      }
+    };
+
+    // Faire Clear Products
+    $('faire-clear-btn').onclick = () => $('faire-confirm-clear-modal').classList.remove('hidden');
+    $('cancel-faire-clear-btn').onclick = () => $('faire-confirm-clear-modal').classList.add('hidden');
+    $('confirm-faire-clear-btn').onclick = async () => {
+      try {
+        const res = await api('/api/faire/products/clear', { method: 'POST' });
+        showToast(res.message, 'info');
+        $('faire-confirm-clear-modal').classList.add('hidden');
+        refreshFaireStatus();
+        loadFaireProducts();
+        loadFaireBrands();
+      } catch (err) {
+        showToast(err.message, 'error');
+      }
+    };
+
+    // Faire Search & Filter listeners
+    $('faire-search-input').oninput = (e) => {
+      clearTimeout(faireSearchDebounce);
+      faireSearchDebounce = setTimeout(() => {
+        faireSearchQuery = e.target.value;
+        faireCurrentPage = 1;
+        loadFaireProducts();
+      }, 350);
+    };
+
+    $('faire-brand-filter').onchange = (e) => {
+      faireSelectedBrand = e.target.value;
+      faireCurrentPage = 1;
+      loadFaireProducts();
+    };
+
+    $('faire-refresh-table-btn').onclick = () => {
+      loadFaireProducts();
+      loadFaireBrands();
+    };
+
+    $('faire-page-size-select').onchange = (e) => {
+      fairePageSize = parseInt(e.target.value, 10) || 25;
+      faireCurrentPage = 1;
+      loadFaireProducts();
+    };
+
+    $('faire-prev-page-btn').onclick = () => {
+      if (faireCurrentPage > 1) {
+        faireCurrentPage--;
+        loadFaireProducts();
+      }
+    };
+
+    $('faire-next-page-btn').onclick = () => {
+      faireCurrentPage++;
+      loadFaireProducts();
+    };
+
+    $('faire-clear-logs-btn').onclick = () => {
+      $('faire-logs-terminal').innerHTML = '<div class="text-slate-500">// Terminal cleared.</div>';
+    };
+
+    // Smooth 1-second local countdown tick for Faire rate-limit cooldown timer
+    setInterval(() => {
+      if (isFaireScraping && faireCooldownRemaining > 0) {
+        faireCooldownRemaining = Math.max(0, faireCooldownRemaining - 1);
+        renderFaireCooldownUI();
+      }
+    }, 1000);
+
+    // Background interval to poll Faire status when app is running
+    setInterval(() => {
+      if (currentCatalogTab === 'faire') {
+        refreshFaireStatus();
+      }
+    }, 1500);
+
+    // Real-time live table refresh while Faire scraper is active (every 2.5s)
+    setInterval(() => {
+      if (currentCatalogTab === 'faire' && isFaireScraping && faireCurrentPage === 1 && document.activeElement !== $('faire-search-input') && !isFaireRefreshingTable) {
+        isFaireRefreshingTable = true;
+        loadFaireProducts().finally(() => { isFaireRefreshingTable = false; });
       }
     }, 2500);
   </script>
